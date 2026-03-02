@@ -28,5 +28,457 @@
     "isPhishing": true,
     "difficulty": "Medium",
     "explanation": "This is a classic 'Spear Phishing' attack. Attackers use urgent, high-value topics (like bonuses) to make you click attachments without checking the sender's fake domain."
+  },
+  {
+    "id": 4,
+    "senderName": "Netflix Support",
+    "senderEmail": "billing@netfllix-support.com",
+    "subject": "Payment Failed - Account Suspension Notice",
+    "body": "Dear Customer, your recent payment has failed. Your Netflix account will be suspended in 24 hours unless you update your payment details immediately.\n\nClick here to update: http://netflix-billing-update.com",
+    "isPhishing": true,
+    "difficulty": "Easy",
+    "explanation": "Look carefully at the sender domain: 'netfllix' is misspelled. Attackers use lookalike domains to trick users."
+  },
+  {
+    "id": 5,
+    "senderName": "Amazon.in",
+    "senderEmail": "order-update@amazon.in",
+    "subject": "Your Order Has Been Shipped",
+    "body": "Your recent order has been shipped and will arrive tomorrow. Track your package in your Amazon account.",
+    "isPhishing": false,
+    "difficulty": "Easy",
+    "explanation": "The sender domain matches the official Amazon domain. No suspicious links or urgent threats."
+  },
+  {
+    "id": 6,
+    "senderName": "University Examination Cell",
+    "senderEmail": "examcell@kletu.ac.in",
+    "subject": "Exam Hall Ticket Download",
+    "body": "Students are advised to download their hall tickets from the official student portal before 10 PM today. Login using your university credentials at https://portal.kletu.ac.in.",
+    "isPhishing": false,
+    "difficulty": "Easy",
+    "explanation": "The domain matches the official university domain and uses HTTPS. No suspicious pressure tactics."
+  },
+  {
+    "id": 7,
+    "senderName": "Google Security",
+    "senderEmail": "security-alert@googlemail.com",
+    "subject": "Unusual Sign-in Attempt Detected",
+    "body": "We detected a suspicious login attempt from Moscow, Russia. Verify your account immediately to prevent suspension.\n\nhttp://google-verify-alert.com",
+    "isPhishing": true,
+    "difficulty": "Medium",
+    "explanation": "Although 'googlemail.com' can look legitimate, the verification link is not an official Google domain."
+  },
+  {
+    "id": 8,
+    "senderName": "Internal IT Team",
+    "senderEmail": "it-support@company.com",
+    "subject": "Mandatory VPN Update",
+    "body": "Due to recent cyber incidents, all employees must install the attached VPN security patch before 5 PM today. Failure to comply may result in restricted access.",
+    "isPhishing": true,
+    "difficulty": "Medium",
+    "explanation": "Urgency + attachment-based update is suspicious. Always verify unexpected security patches through official internal portals."
+  },
+  {
+    "id": 9,
+    "senderName": "LinkedIn",
+    "senderEmail": "messages-noreply@linkedin.com",
+    "subject": "You appeared in 12 searches this week",
+    "body": "Your profile was viewed 12 times this week. See who's interested in your profile by logging in to LinkedIn.",
+    "isPhishing": false,
+    "difficulty": "Medium",
+    "explanation": "This is a common legitimate LinkedIn notification. Domain matches the official site."
+  },
+  {
+    "id": 10,
+    "senderName": "Bank of Baroda",
+    "senderEmail": "support@bankofbaroda-secure.co",
+    "subject": "Immediate KYC Update Required",
+    "body": "Dear Customer, as per RBI guidelines, your KYC details must be updated within 12 hours to avoid account freeze.\n\nUpdate here: http://bob-kyc-update.co.in",
+    "isPhishing": true,
+    "difficulty": "Hard",
+    "explanation": "The domain is not the official bank domain. Attackers use fear tactics like 'account freeze' to rush victims."
+  },
+  {
+    "id": 11,
+    "senderName": "CEO - Rajiv Malhotra",
+    "senderEmail": "rajiv.malhotra@company.co",
+    "subject": "Confidential: Immediate Assistance Needed",
+    "body": "I am in a board meeting and need you to urgently purchase ₹25,000 worth of Amazon gift cards and send me the codes. This is confidential. Respond quickly.",
+    "isPhishing": true,
+    "difficulty": "Hard",
+    "explanation": "This is a Business Email Compromise (BEC) scam. CEOs rarely request gift cards. Urgency + secrecy is a red flag."
+  },
+  {
+    "id": 12,
+    "senderName": "Microsoft Account Team",
+    "senderEmail": "account-security@microsoft.com",
+    "subject": "Password Reset Request",
+    "body": "We received a request to reset your Microsoft password. If this was not you, please ignore this email. If it was you, click below to proceed securely at https://account.microsoft.com.",
+    "isPhishing": false,
+    "difficulty": "Hard",
+    "explanation": "The domain is legitimate and the message provides a safe official link. No threats or urgent panic language."
+  },
+  {
+    "id": 13,
+    "senderName": "Income Tax Department",
+    "senderEmail": "refund@incometax-gov.in",
+    "subject": "Income Tax Refund of ₹14,580 Approved",
+    "body": "Your refund has been approved. Kindly submit your bank details within 6 hours to receive the credited amount.\n\nClick: http://it-refund-gov.in/verify",
+    "isPhishing": true,
+    "difficulty": "Hard",
+    "explanation": "Government domains in India usually use 'gov.in'. The hyphenated variation is suspicious. Urgency and money lure are red flags."
+  },
+  {
+    "id": 14,
+    "senderName": "TCS Recruitment Team",
+    "senderEmail": "hr@tcs-careers.org",
+    "subject": "Congratulations! You Are Selected - Immediate Joining",
+    "body": "Dear Candidate,\n\nWe are pleased to inform you that you have been selected for the role of Software Engineer at TCS. To confirm your joining, please pay a refundable security deposit of ₹3,500 before today 6 PM.\n\nAccount details attached.",
+    "isPhishing": true,
+    "difficulty": "Easy",
+    "explanation": "Legitimate companies never ask candidates to pay money for job offers. Payment request is a major red flag."
+  },
+  {
+    "id": 15,
+    "senderName": "Infosys Careers",
+    "senderEmail": "careers@infosys.com",
+    "subject": "Interview Invitation - Technical Round",
+    "body": "Dear Applicant,\n\nThank you for applying to Infosys. You are shortlisted for the technical interview. Please log in to your candidate portal at https://career.infosys.com to select your interview slot.",
+    "isPhishing": false,
+    "difficulty": "Easy",
+    "explanation": "The sender domain matches the official Infosys domain and directs to a legitimate HTTPS portal."
+  },
+  {
+    "id": 16,
+    "senderName": "Wipro Talent Acquisition",
+    "senderEmail": "wipro.hr.recruitment@gmail.com",
+    "subject": "Offer Letter - Immediate Hiring",
+    "body": "Dear Candidate,\n\nWe reviewed your profile on Naukri and selected you without interview. Please send your Aadhaar card, PAN card, and passport photo for immediate onboarding.",
+    "isPhishing": true,
+    "difficulty": "Medium",
+    "explanation": "Large companies do not use Gmail for hiring. Asking for sensitive documents before verification is suspicious."
+  },
+  {
+    "id": 17,
+    "senderName": "Zoho Corporation HR",
+    "senderEmail": "hr@zohocorp.com",
+    "subject": "Assignment Submission Reminder",
+    "body": "Hello,\n\nThis is a reminder to submit your technical assignment for the Developer role. Please upload it through the official Zoho recruitment portal shared earlier.",
+    "isPhishing": false,
+    "difficulty": "Medium",
+    "explanation": "The sender domain is official. No urgent payment or sensitive data request."
+  },
+  {
+    "id": 18,
+    "senderName": "Amazon Hiring Desk",
+    "senderEmail": "recruitment@amazon-job-offers.net",
+    "subject": "Work From Home Opportunity - Earn ₹75,000/Month",
+    "body": "Congratulations! You are selected for a part-time remote job with Amazon. No interview required. Limited seats available. Pay ₹1,999 registration fee to secure your slot.",
+    "isPhishing": true,
+    "difficulty": "Medium",
+    "explanation": "High salary + no interview + registration fee = classic job scam indicators."
+  },
+  {
+    "id": 19,
+    "senderName": "Google India Careers",
+    "senderEmail": "careers@google.com",
+    "subject": "Application Status Update",
+    "body": "Thank you for your application. Your profile is currently under review. You can track your application status in your Google Careers dashboard.",
+    "isPhishing": false,
+    "difficulty": "Hard",
+    "explanation": "Legitimate domain and neutral tone. No urgency or suspicious link."
+  },
+  {
+    "id": 20,
+    "senderName": "HR Manager - Accenture",
+    "senderEmail": "hr.accenture.india@consultant.com",
+    "subject": "Final Offer Letter Attached",
+    "body": "We are pleased to offer you the role of Analyst at Accenture. Please review the attached offer letter (ZIP file) and submit your bank account details within 4 hours to avoid cancellation.",
+    "isPhishing": true,
+    "difficulty": "Hard",
+    "explanation": "Accenture would not use a generic domain like consultant.com. ZIP attachments + urgency + bank details request are major red flags."
+  },
+  {
+    "id": 21,
+    "senderName": "Startup Hiring Team",
+    "senderEmail": "founder@techspark.in",
+    "subject": "Quick Chat Regarding Backend Developer Role",
+    "body": "Hi Vaishnavi,\n\nWe came across your GitHub profile and would like to schedule a quick call regarding a backend developer opportunity. Let us know your availability this week.",
+    "isPhishing": false,
+    "difficulty": "Hard",
+    "explanation": "Personalized message, no money request, no suspicious links. Startup domains may look unfamiliar but are not automatically phishing."
+  },
+  {
+    "id": 22,
+    "senderName": "UIDAI Support",
+    "senderEmail": "update@uidai-support.org",
+    "subject": "Aadhaar Biometric Suspension Notice",
+    "body": "Dear Resident,\n\nYour Aadhaar biometric details are suspended due to mismatch. Kindly update within 8 hours to avoid service disruption.\n\nUpdate now: http://aadhaar-verify-now.in",
+    "isPhishing": true,
+    "difficulty": "Medium",
+    "explanation": "Official UIDAI emails use the uidai.gov.in domain. The 'uidai-support.org' domain and urgent pressure tactic indicate phishing."
+  },
+  {
+    "id": 23,
+    "senderName": "UIDAI",
+    "senderEmail": "no-reply@uidai.gov.in",
+    "subject": "Reminder: Aadhaar Update Appointment Confirmation",
+    "body": "This is a confirmation of your Aadhaar update appointment scheduled at your selected Aadhaar Seva Kendra. For details, visit https://uidai.gov.in.",
+    "isPhishing": false,
+    "difficulty": "Medium",
+    "explanation": "The sender uses the official uidai.gov.in domain and does not ask for sensitive details via email."
+  },
+  {
+    "id": 24,
+    "senderName": "Income Tax e-Filing",
+    "senderEmail": "alerts@incometaxindia-gov.org",
+    "subject": "PAN Card Suspension Warning",
+    "body": "Your PAN has been marked inactive due to non-linking with Aadhaar. Failure to comply within 24 hours will result in permanent deactivation.\n\nLink here: http://pan-link-update.co.in",
+    "isPhishing": true,
+    "difficulty": "Hard",
+    "explanation": "Official income tax communications in India use incometax.gov.in. The '.org' domain and threatening tone are red flags."
+  },
+  {
+    "id": 25,
+    "senderName": "Income Tax Department",
+    "senderEmail": "no-reply@incometax.gov.in",
+    "subject": "Important: PAN-Aadhaar Linking Status",
+    "body": "Dear Taxpayer,\n\nAs per government guidelines, please ensure your PAN is linked with Aadhaar before the deadline. You may check your status at https://www.incometax.gov.in.\n\nNo action is required if already completed.",
+    "isPhishing": false,
+    "difficulty": "Hard",
+    "explanation": "The domain is official (incometax.gov.in) and the email does not demand sensitive details or create extreme urgency."
+  },
+  {
+    "id": 26,
+    "senderName": "RBI Notification Desk",
+    "senderEmail": "customer.alert@rbi-secure.com",
+    "subject": "Bank Account Freeze as per RBI Guidelines",
+    "body": "As per RBI regulations, your bank account will be frozen due to incomplete KYC verification. Submit Aadhaar and PAN copy immediately to avoid restriction.\n\nUpload here: http://rbi-kyc-alert.in",
+    "isPhishing": true,
+    "difficulty": "Hard",
+    "explanation": "RBI does not directly contact individuals for KYC updates. Banks handle KYC. The domain is fake and the request for document upload is suspicious."
+  },
+  {
+    "id": 27,
+    "senderName": "GST Portal",
+    "senderEmail": "support@gst.gov.in",
+    "subject": "GST Return Filing Reminder",
+    "body": "Dear Taxpayer,\n\nThis is a reminder to file your monthly GST return before the due date. Please log in to https://www.gst.gov.in to complete your filing.",
+    "isPhishing": false,
+    "difficulty": "Medium",
+    "explanation": "The domain gst.gov.in is official. The email asks the user to log in through the official portal rather than providing suspicious links."
+  },
+  {
+    "id": 28,
+    "senderName": "Aadhaar e-KYC Department",
+    "senderEmail": "verification@aadhaar-gov.co",
+    "subject": "Urgent: Aadhaar Deactivation Notice",
+    "body": "Your Aadhaar will be permanently deactivated within 6 hours due to suspicious activity. Confirm your OTP and bank account number to reactivate immediately.",
+    "isPhishing": true,
+    "difficulty": "Hard",
+    "explanation": "Government agencies never ask for OTP or bank details via email. The domain is not official (.gov.in is standard). Extreme urgency is a classic phishing tactic."
+  },
+  {
+    "id": 29,
+    "senderName": "DigiLocker Support",
+    "senderEmail": "no-reply@digilocker.gov.in",
+    "subject": "New Document Issued to Your DigiLocker",
+    "body": "A new document has been issued to your DigiLocker account by CBSE. Please log in at https://www.digilocker.gov.in to view the document.",
+    "isPhishing": false,
+    "difficulty": "Medium",
+    "explanation": "The sender domain is official (.gov.in) and directs to the legitimate DigiLocker website without asking for sensitive details via email."
+  },
+  {
+    "id": 30,
+    "senderName": "DigiLocker Verification Team",
+    "senderEmail": "support@digilocker-secure.co.in",
+    "subject": "Aadhaar Re-Verification Required",
+    "body": "Your DigiLocker account will be blocked due to incomplete Aadhaar verification. Submit OTP and Aadhaar number immediately.\n\nVerify here: http://digilocker-verify.co.in",
+    "isPhishing": true,
+    "difficulty": "Medium",
+    "explanation": "Government platforms never ask for OTP via email. The domain is not the official digilocker.gov.in."
+  },
+  {
+    "id": 31,
+    "senderName": "EPFO India",
+    "senderEmail": "alerts@epfindia.gov.in",
+    "subject": "PF Contribution Credit Alert",
+    "body": "Dear Member,\n\nYour employer has credited this month's PF contribution. You can check details at https://www.epfindia.gov.in.",
+    "isPhishing": false,
+    "difficulty": "Medium",
+    "explanation": "Official domain epfindia.gov.in is used. No request for confidential information."
+  },
+  {
+    "id": 32,
+    "senderName": "EPFO Claim Desk",
+    "senderEmail": "claim@epfo-india.org",
+    "subject": "Pending PF Withdrawal - Immediate Action Required",
+    "body": "Your PF withdrawal request is pending due to incomplete KYC. Upload PAN, Aadhaar, and bank passbook copy within 12 hours to avoid rejection.\n\nUpload at: http://epfo-claim-update.in",
+    "isPhishing": true,
+    "difficulty": "Hard",
+    "explanation": "The domain is fake (.org instead of .gov.in). Urgent document upload request is a red flag."
+  },
+  {
+    "id": 33,
+    "senderName": "SEBI Investor Alert",
+    "senderEmail": "alerts@sebi.gov.in",
+    "subject": "Investor Awareness Notification",
+    "body": "SEBI advises investors to avoid unregistered trading platforms. For more information, visit https://www.sebi.gov.in.",
+    "isPhishing": false,
+    "difficulty": "Hard",
+    "explanation": "The domain is legitimate and the email does not ask for login credentials or personal data."
+  },
+  {
+    "id": 34,
+    "senderName": "SEBI Compliance Cell",
+    "senderEmail": "support@sebi-regulations.co",
+    "subject": "Trading Account Suspension Notice",
+    "body": "Your Demat account is under investigation for suspicious trading activity. Submit your PAN and bank login credentials within 6 hours to avoid permanent freeze.",
+    "isPhishing": true,
+    "difficulty": "Very Hard",
+    "explanation": "Regulators like SEBI do not ask for bank login credentials. The domain is fake and urgency is used to create panic."
+  },
+  {
+    "id": 35,
+    "senderName": "NPCI UPI Services",
+    "senderEmail": "no-reply@npci.org.in",
+    "subject": "UPI Transaction Alert",
+    "body": "A UPI transaction of ₹2,500 has been successfully processed. If this was not you, contact your bank immediately.",
+    "isPhishing": false,
+    "difficulty": "Hard",
+    "explanation": "NPCI uses npci.org.in domain. The message does not ask for OTP or credentials."
+  },
+  {
+    "id": 36,
+    "senderName": "UPI Refund Department",
+    "senderEmail": "refund@upi-npci-support.com",
+    "subject": "Pending UPI Refund - Action Required",
+    "body": "You have a pending UPI refund of ₹4,999. To receive funds, confirm your UPI PIN and OTP immediately.\n\nClaim refund: http://upi-refund-alert.in",
+    "isPhishing": true,
+    "difficulty": "Very Hard",
+    "explanation": "No legitimate authority asks for UPI PIN or OTP. The domain is fake and requests highly sensitive information."
+  },
+  {
+    "id": 37,
+    "senderName": "Election Commission of India",
+    "senderEmail": "voterupdate@eci.gov.in",
+    "subject": "Voter ID Update Confirmation",
+    "body": "Your voter ID details have been successfully updated. For status check, visit https://eci.gov.in.",
+    "isPhishing": false,
+    "difficulty": "Hard",
+    "explanation": "The domain is official (.gov.in) and does not request sensitive financial information."
+  },
+  {
+    "id": 38,
+    "senderName": "National Scholarship Portal",
+    "senderEmail": "support@scholarship-gov.in",
+    "subject": "Scholarship Amount Approved - Submit Bank Details",
+    "body": "Congratulations! Your scholarship of ₹28,000 has been approved. Submit your bank account number and ATM PIN within 8 hours to receive funds.",
+    "isPhishing": true,
+    "difficulty": "Very Hard",
+    "explanation": "Government scholarship portals never ask for ATM PIN. Slight domain variation and urgency indicate phishing."
+  },
+ {
+  "id": 39,
+  "type": "Dynamic Email Template",
+  "difficulty": "Hard",
+  "template": {
+    "senderName": "{UniversityName} IT Cell",
+    "senderEmail": "support@{universityname}-secure.com",
+    "subject": "URGENT: Suspicious Login from {City}",
+    "body": "Dear {UserName},\n\nWe detected a login attempt to your university portal from {City}. If this was not you, secure your account within {DeadlineHours} hours.\n\nVerify here: http://{universityname}-verify-login.com"
+  },
+  "isPhishing": true,
+  "redFlags": [
+    "Lookalike domain",
+    "Urgency pressure",
+    "External verification link"
+  ],
+  "explanation": "Attackers personalize emails using leaked data to make phishing appear authentic."
+},
+  {
+    "id": 40,
+    "type": "SMS",
+    "message": "India Post: Your parcel is on hold due to incorrect address. Update details within 6 hours: http://indiapost-update.info",
+    "isPhishing": true,
+    "difficulty": "Medium",
+    "explanation": "India Post does not use random domains. Urgency + unknown link = red flag."
+  },
+  {
+    "id": 41,
+    "type": "WhatsApp",
+    "message": "Hi, I'm from your bank's fraud department. Your UPI payment of ₹9,800 is pending. Reply YES to cancel immediately.",
+    "isPhishing": true,
+    "difficulty": "Hard",
+    "explanation": "Banks do not resolve fraud cases via WhatsApp. Always contact official bank channels."
+  },
+  {
+    "id": 42,
+    "type": "SMS",
+    "message": "IRCTC Alert: Your train ticket WL has been confirmed. Check status in official IRCTC app.",
+    "isPhishing": false,
+    "difficulty": "Medium",
+    "explanation": "No suspicious link and references official app instead."
+  },
+  {
+    "id": 45,
+    "senderName": "Placement Cell - KLE Technological University",
+    "senderEmail": "placements@kletu-careers.com",
+    "subject": "Off-Campus Drive: Infosys Mass Hiring",
+    "body": "Students from CSE/ISE 2026 batch are shortlisted for Infosys off-campus drive. Pay ₹750 registration fee to confirm participation before tonight 11:59 PM.",
+    "isPhishing": true,
+    "difficulty": "Medium",
+    "explanation": "Official placement emails use university domain (.ac.in). Payment request is suspicious."
+  },
+  {
+    "id": 46,
+    "senderName": "Capgemini Talent Acquisition",
+    "senderEmail": "hr@capgemini.com",
+    "subject": "Virtual Interview Confirmation",
+    "body": "You are invited for a virtual interview. Please attend via the official Microsoft Teams link shared in your candidate portal.",
+    "isPhishing": false,
+    "difficulty": "Hard",
+    "explanation": "Legitimate domain and no payment or document misuse."
+  },
+  {
+    "id": 47,
+    "senderName": "Startup Recruiter",
+    "senderEmail": "ceo.techhire@gmail.com",
+    "subject": "Direct Placement Offer - ₹12 LPA",
+    "body": "We are offering direct placement without interview. Share Aadhaar, PAN, and pay ₹2,999 for laptop shipping.",
+    "isPhishing": true,
+    "difficulty": "Very Hard",
+    "explanation": "High salary + no interview + Gmail sender + payment request = major fraud indicators."
+  },
+  {
+    "id": 48,
+    "senderName": "Placement Office - KLE Technological University",
+    "senderEmail": "placements@kletu.ac.in",
+    "subject": "On-Campus Drive: TCS Ninja Interview Schedule",
+    "body": "Dear Students,\n\nThe interview schedule for TCS Ninja on-campus drive has been uploaded to the official placement portal. Please log in using your university credentials to check your allotted slot.\n\nNo fees are required for participation.",
+    "isPhishing": false,
+    "difficulty": "Medium",
+    "explanation": "Official university domain (.ac.in) is used. Clear communication and explicitly states no payment required."
+  },
+  {
+    "id": 49,
+    "senderName": "HR Executive - HCL Technologies",
+    "senderEmail": "hcl.recruitment.india@consultantmail.com",
+    "subject": "Final Round Selection - Immediate Documentation Required",
+    "body": "Congratulations! You have cleared all interview rounds for HCL Technologies. Submit scanned copies of your Aadhaar, PAN, and pay ₹1,250 as background verification fee within 6 hours to receive your offer letter.",
+    "isPhishing": true,
+    "difficulty": "Hard",
+    "explanation": "Legitimate companies do not ask for payment for background verification. Suspicious third-party email domain and urgency tactic."
+  },
+  {
+    "id": 50,
+    "senderName": "Accenture Campus Recruitment",
+    "senderEmail": "campus.recruitment@accenture.com",
+    "subject": "Assessment Platform Login Details",
+    "body": "Dear Candidate,\n\nYou are shortlisted for the Accenture campus hiring assessment. Please access the test using the official Accenture assessment platform link sent through your candidate dashboard.\n\nEnsure stable internet connectivity during the test.",
+    "isPhishing": false,
+    "difficulty": "Hard",
+    "explanation": "Official company domain is used. No payment request or demand for sensitive documents via email."
   }
 ]
