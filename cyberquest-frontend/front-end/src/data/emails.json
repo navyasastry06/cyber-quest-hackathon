@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "senderName": "IT Helpdesk",
+    "senderEmail": "admin@kletu-support.com",
+    "subject": "URGENT: Password Expiry Notification",
+    "body": "Your university portal password expires in 2 hours. Please click the link below to verify your credentials immediately or your account will be locked.\n\nhttp://login-kletu-update.com/secure",
+    "isPhishing": true,
+    "difficulty": "Easy",
+    "explanation": "Look at the sender email and the URL. Official university emails will use the actual university domain, not a hyphenated 'support' domain."
+  },
+  {
+    "id": 2,
+    "senderName": "GitHub",
+    "senderEmail": "noreply@github.com",
+    "subject": "[GitHub] Please verify your device",
+    "body": "We detected a new login to your GitHub account from a new device in Hubballi. If this was you, please enter the verification code: 849-201. If this was not you, please secure your account.",
+    "isPhishing": false,
+    "difficulty": "Easy",
+    "explanation": "This is a standard security alert. The sender domain matches the official service."
+  },
+  {
+    "id": 3,
+    "senderName": "HR Department",
+    "senderEmail": "hr-updates@company-portal.net",
+    "subject": "Updated Q1 Bonus Structure - Confidential",
+    "body": "Attached is the revised Q1 bonus structure for all engineering staff. Please review the PDF to ensure your payout tier is correct before Friday's payroll run.",
+    "isPhishing": true,
+    "difficulty": "Medium",
+    "explanation": "This is a classic 'Spear Phishing' attack. Attackers use urgent, high-value topics (like bonuses) to make you click attachments without checking the sender's fake domain."
+  }
+]
