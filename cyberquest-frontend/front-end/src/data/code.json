@@ -1,0 +1,17 @@
+[
+  {
+    "id": 101,
+    "title": "The Leaky API",
+    "question": "Review this Express.js route. What is the critical vulnerability?",
+    "codeSnippet": "app.get('/api/users/:id', async (req, res) => {\n  const userId = req.params.id;\n  // Fetch user from DB\n  const user = await db.users.findOne({ id: userId });\n  res.json(user);\n});",
+    "options": [
+      "SQL Injection (SQLi)",
+      "Cross-Site Scripting (XSS)",
+      "Broken Object Level Authorization (IDOR)",
+      "Memory Leak"
+    ],
+    "correctAnswer": 2,
+    "points": 200,
+    "explanation": "This is IDOR (Insecure Direct Object Reference). The API fetches the user ID without checking if the logged-in user actually has permission to view that specific account!"
+  }
+]

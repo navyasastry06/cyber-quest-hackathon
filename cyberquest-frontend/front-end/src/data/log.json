@@ -1,0 +1,17 @@
+[
+  {
+    "id": 201,
+    "title": "The Midnight Breach",
+    "instruction": "Analyze the live firewall logs below. Click on the request that indicates a Directory Traversal attack.",
+    "logs": [
+      {"time": "23:58:12", "ip": "192.168.1.45", "req": "GET /assets/style.css", "status": 200},
+      {"time": "23:58:14", "ip": "10.0.0.2", "req": "POST /api/login", "status": 401},
+      {"time": "23:58:15", "ip": "10.0.0.2", "req": "POST /api/login", "status": 401},
+      {"time": "23:58:22", "ip": "198.51.100.73", "req": "GET /download?file=../../../etc/passwd", "status": 200},
+      {"time": "23:58:25", "ip": "192.168.1.45", "req": "GET /dashboard", "status": 200}
+    ],
+    "maliciousIndex": 3,
+    "points": 250,
+    "explanation": "The request containing '../../../etc/passwd' is a classic Directory Traversal attack attempting to access sensitive Linux system files outside the web folder."
+  }
+]

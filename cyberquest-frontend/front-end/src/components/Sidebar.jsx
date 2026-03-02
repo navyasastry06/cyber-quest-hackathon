@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ShieldAlert, Wrench, Bot, Shield } from 'lucide-react';
-
+import { Trophy } from 'lucide-react'
 const Sidebar = () => {
   // This helps us know which page is currently active
   const location = useLocation();
@@ -50,6 +50,13 @@ const Sidebar = () => {
         >
           <Bot size={20} />
           <span className="font-medium">AI Copilot</span>
+        </Link>
+        <Link 
+          to="/challenges" 
+          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/challenges') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
+        >
+          <Trophy size={20} />
+          <span className="font-medium">Challenges</span>
         </Link>
       </nav>
 

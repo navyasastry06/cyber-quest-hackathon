@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Simulator from './pages/Simulator';
 import Tools from './pages/Tools';
 import ChatPage from './pages/Chatbot'; // <-- Import the new page
+import Challenges from './pages/Challenges';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/simulator" element={<Simulator />} />
             <Route path="/tools" element={<Tools />} />
             <Route path="/chat" element={<ChatPage />} /> {/* <-- Add the route */}
+            <Route path="/challenges" element={<Challenges />} />
           </Routes>
         </div>
       </div>

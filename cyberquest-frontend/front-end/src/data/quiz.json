@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "title": "The Phishing Lure",
+    "question": "You receive an urgent email from 'support@paypa1.com'. What is the immediate red flag?",
+    "options": ["The email is marked as 'urgent'.", "The sender's domain is misspelled.", "They are asking to verify identity.", "No signature."],
+    "correctAnswer": 1,
+    "points": 100,
+    "explanation": "Attackers use typosquatting (like replacing 'l' with '1') to trick you."
+  }
+]
