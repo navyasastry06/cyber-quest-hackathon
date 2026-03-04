@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cyber Attack Simulator</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
+}
+
+header{
+background:#020617;
+padding:20px;
+text-align:center;
+font-size:28px;
+font-weight:bold;
+}
+
+.container{
+display:flex;
+height:calc(100vh - 80px);
+}
+
+.panel{
+flex:1;
+padding:30px;
+}
+
+.left{
+background:#0f172a;
+border-right:2px solid #1e293b;
+}
+
+.right{
+background:#020617;
+}
+
+button{
+padding:10px 15px;
+margin:5px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+}
+
+.generate{
+background:#3b82f6;
+color:white;
+}
+
+.attack-btn{
+background:#334155;
+color:white;
+}
+
+.attack-btn:hover{
+background:#475569;
+}
+
+.card{
+background:#1e293b;
+padding:15px;
+border-radius:8px;
+margin-bottom:20px;
+}
+
+.question{
+background:#1e293b;
+padding:15px;
+border-left:5px solid #3b82f6;
+border-radius:6px;
+margin-bottom:20px;
+}
+
+.correct{
+color:#22c55e;
+font-weight:bold;
+}
+
+.wrong{
+color:#ef4444;
+font-weight:bold;
+}
+
+.score{
+font-size:18px;
+margin-top:15px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+Cyber Attack Simulator
+</header>
+
+<div class="container">
+
+<div class="panel left">
+
+<button class="generate" onclick="generateAttack()">Generate Attack</button>
+
+<div class="question" id="questionBox">
+Click "Generate Attack" to start the challenge.
+</div>
+
+<div class="card">
+
+<h3>Network Traffic Data</h3>
+
+<p>Duration: <span id="duration">?</span></p>
+<p>Source Bytes: <span id="src_bytes">?</span></p>
+<p>Destination Bytes: <span id="dst_bytes">?</span></p>
+<p>Failed Logins: <span id="failed_logins">?</span></p>
+<p>Logged In: <span id="logged_in">?</span></p>
+<p>Compromised Accounts: <span id="num_compromised">?</span></p>
+<p>Connection Count: <span id="count">?</span></p>
+<p>Server Error Rate: <span id="srv_serror_rate">?</span></p>
+
+</div>
+
+</div>
+
+<div class="panel right">
+
+<h2>Guess the Attack</h2>
+
+<button class="attack-btn" onclick="guessAttack('DoS')">DoS</button>
+<button class="attack-btn" onclick="guessAttack('Probe')">Probe</button>
+<button class="attack-btn" onclick="guessAttack('R2L')">R2L</button>
+<button class="attack-btn" onclick="guessAttack('U2R')">U2R</button>
+<button class="attack-btn" onclick="guessAttack('Normal')">Normal</button>
+
+<hr>
+
+<h3>Attack Type: <span id="attack">?</span></h3>
+<h3>Confidence: <span id="confidence">?</span></h3>
+<h3>Explanation: <span id="explanation">?</span></h3>
+<h3>Network Health: <span id="health">?</span></h3>
+
+<h3>Result: <span id="result"></span></h3>
+<h3>Score Change: <span id="score"></span></h3>
+
+<div class="score">
+Total Score: <span id="totalScore">0</span>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let currentAttack=""
+let currentData=null
+let totalScore=0
+
+function generateQuestion(traffic){
+
+if(traffic.failed_logins > 5){
+return "Multiple failed login attempts detected. Identify the cyber attack."
+}
+
+if(traffic.srv_serror_rate > 0.8){
+return "Extremely high server error rate detected. What attack could cause this?"
+}
+
+if(traffic.count > 200){
+return "Huge spike in connection count detected. What attack is this?"
+}
+
+if(traffic.num_compromised > 2){
+return "Several compromised accounts detected. What attack might this indicate?"
+}
+
+return "Suspicious network behaviour detected. Identify the attack type."
+
+}
+
+async function generateAttack(){
+
+const response = await fetch("http://127.0.0.1:5000/simulate")
+const data = await response.json()
+
+currentAttack = data.actual_prediction
+currentData = data
+
+const traffic = data.traffic
+
+document.getElementById("duration").innerText = traffic.duration
+document.getElementById("src_bytes").innerText = traffic.src_bytes
+document.getElementById("dst_bytes").innerText = traffic.dst_bytes
+document.getElementById("failed_logins").innerText = traffic.failed_logins
+document.getElementById("logged_in").innerText = traffic.logged_in
+document.getElementById("num_compromised").innerText = traffic.num_compromised
+document.getElementById("count").innerText = traffic.count
+document.getElementById("srv_serror_rate").innerText = traffic.srv_serror_rate
+
+document.getElementById("questionBox").innerText = generateQuestion(traffic)
+
+document.getElementById("attack").innerText = "?"
+document.getElementById("confidence").innerText = "?"
+document.getElementById("explanation").innerText = "?"
+document.getElementById("health").innerText = "?"
+
+document.getElementById("result").innerText = ""
+document.getElementById("score").innerText = ""
+
+}
+
+function guessAttack(type){
+
+if(!currentData){
+alert("Generate an attack first!")
+return
+}
+
+let result
+let scoreChange
+
+if(type === currentAttack){
+result = "Correct"
+scoreChange = 10
+document.getElementById("result").className = "correct"
+}
+else{
+result = "Wrong"
+scoreChange = -5
+document.getElementById("result").className = "wrong"
+}
+
+totalScore += scoreChange
+
+document.getElementById("attack").innerText = currentAttack
+document.getElementById("confidence").innerText = currentData.confidence
+document.getElementById("explanation").innerText = currentData.explanation
+document.getElementById("health").innerText = currentData.network_health
+
+document.getElementById("result").innerText = result
+document.getElementById("score").innerText = scoreChange
+document.getElementById("totalScore").innerText = totalScore
+
+}
+
+</script>
+
+</body>
+</html>

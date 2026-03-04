@@ -1,47 +1,109 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import joblib
 import pandas as pd
 import random
+import google.generativeai as genai
+import os
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Load trained model
+# ==========================
+# Gemini Configuration
+# ==========================
+
+genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+
+gemini_model = genai.GenerativeModel("gemini-pro")
+
+
+# ==========================
+# Load ML Model
+# ==========================
+
 model = joblib.load("intrusion_model.pkl")
 
-# Network health system
 network_health = 100
 
 # Feature order (MUST match training)
 columns = [
-    "duration", "src_bytes", "dst_bytes",
-    "failed_logins", "logged_in",
-    "num_compromised", "count",
+    "duration",
+    "src_bytes",
+    "dst_bytes",
+    "failed_logins",
+    "logged_in",
+    "num_compromised",
+    "count",
     "srv_serror_rate"
 ]
 
-# ==========================
-# Attack Explanation Function
-# ==========================
-def explain_attack(attack):
-    explanations = {
-        "DoS": "High traffic volume and server error rates suggest a Denial of Service attack.",
-        "Probe": "Suspicious scanning behaviour indicates possible reconnaissance activity.",
-        "R2L": "Multiple failed login attempts suggest a Remote-to-Local intrusion attempt.",
-        "U2R": "Privilege escalation behaviour detected indicating a User-to-Root attack.",
-        "Normal": "Traffic appears normal with no suspicious indicators."
-    }
 
-    return explanations.get(attack, "No explanation available.")
+# ==========================
+# Improved Gemini Explanation
+# ==========================
 
+def explain_attack(attack, traffic):
+
+    prompt = f"""
+You are a cybersecurity analyst.
+
+Explain briefly why the following network traffic could indicate a {attack} attack.
+
+Traffic Data:
+Duration: {traffic['duration']}
+Source Bytes: {traffic['src_bytes']}
+Destination Bytes: {traffic['dst_bytes']}
+Failed Logins: {traffic['failed_logins']}
+Logged In: {traffic['logged_in']}
+Compromised Accounts: {traffic['num_compromised']}
+Connection Count: {traffic['count']}
+Server Error Rate: {traffic['srv_serror_rate']}
+
+Explain in simple language using 1 or 2 sentences.
+"""
+
+    try:
+        response = gemini_model.generate_content(prompt)
+
+        # Sometimes Gemini returns text differently
+        if hasattr(response, "text"):
+            return response.text.strip()
+
+        elif response.candidates:
+            return response.candidates[0].content.parts[0].text.strip()
+
+        else:
+            return "AI explanation unavailable."
+
+    except Exception as e:
+        print("Gemini Error:", e)
+
+        # Fallback explanation if Gemini fails
+        fallback = {
+            "DoS": "Large traffic spikes and server errors suggest a Denial of Service attack.",
+            "Probe": "Suspicious scanning patterns suggest reconnaissance activity.",
+            "R2L": "Multiple login attempts indicate a possible remote-to-local intrusion.",
+            "U2R": "Privilege escalation behavior suggests a user-to-root attack.",
+            "Normal": "Traffic appears normal without suspicious indicators."
+        }
+
+        return fallback.get(attack, "AI explanation unavailable.")
+
+
+# ==========================
+# Home Route
+# ==========================
 
 @app.route("/")
 def home():
-    return "Intrusion Detection API Running "
+    return "Intrusion Detection API Running 🚀"
 
 
 # ==========================
 # Manual Prediction API
 # ==========================
+
 @app.route("/predict", methods=["POST"])
 def predict():
 
@@ -59,10 +121,12 @@ def predict():
     ]], columns=columns)
 
     prediction = model.predict(input_data)[0]
+
     probabilities = model.predict_proba(input_data)
+
     confidence = max(probabilities[0]) * 100
 
-    explanation = explain_attack(prediction)
+    explanation = explain_attack(prediction, data)
 
     return jsonify({
         "prediction": prediction,
@@ -74,6 +138,7 @@ def predict():
 # ==========================
 # Gamified Simulation API
 # ==========================
+
 @app.route("/simulate", methods=["GET"])
 def simulate():
 
@@ -83,9 +148,11 @@ def simulate():
     player_choice = request.args.get("choice")
 
     # --------------------------
-    # Generate traffic by difficulty
+    # Generate traffic
     # --------------------------
+
     if difficulty == "easy":
+
         traffic = {
             "duration": random.randint(0, 3),
             "src_bytes": random.randint(8000, 15000),
@@ -98,6 +165,7 @@ def simulate():
         }
 
     elif difficulty == "hard":
+
         traffic = {
             "duration": random.randint(5, 15),
             "src_bytes": random.randint(1000, 9000),
@@ -109,7 +177,8 @@ def simulate():
             "srv_serror_rate": round(random.uniform(0.3, 0.9), 2)
         }
 
-    else:  # medium difficulty
+    else:
+
         traffic = {
             "duration": random.randint(0, 15),
             "src_bytes": random.randint(50, 15000),
@@ -121,9 +190,11 @@ def simulate():
             "srv_serror_rate": round(random.uniform(0.0, 1.0), 2)
         }
 
+
     # --------------------------
-    # Predict using ML model
+    # ML Prediction
     # --------------------------
+
     input_data = pd.DataFrame([[
         traffic["duration"],
         traffic["src_bytes"],
@@ -136,42 +207,54 @@ def simulate():
     ]], columns=columns)
 
     prediction = model.predict(input_data)[0]
+
     probabilities = model.predict_proba(input_data)
+
     confidence = max(probabilities[0]) * 100
 
-    explanation = explain_attack(prediction)
+    explanation = explain_attack(prediction, traffic)
+
 
     # --------------------------
     # Game Logic
     # --------------------------
+
     result = None
     score_change = 0
 
     if player_choice:
 
         if player_choice == prediction:
+
             result = "Correct"
             score_change = 15 if difficulty == "hard" else 10
             network_health = min(100, network_health + 5)
 
         else:
+
             result = "Wrong"
             score_change = -10 if difficulty == "hard" else -5
             network_health = max(0, network_health - 10)
 
+
     # --------------------------
     # Network Status
     # --------------------------
+
     if network_health >= 70:
         network_status = "Secure"
+
     elif network_health >= 40:
         network_status = "Warning"
+
     else:
         network_status = "Critical"
+
 
     # --------------------------
     # Response
     # --------------------------
+
     return jsonify({
         "difficulty": difficulty,
         "traffic": traffic,
