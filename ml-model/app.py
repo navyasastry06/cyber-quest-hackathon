@@ -8,6 +8,9 @@ app = Flask(__name__)
 # Load trained model
 model = joblib.load("intrusion_model.pkl")
 
+# Network health system
+network_health = 100
+
 # Feature order (MUST match training)
 columns = [
     "duration", "src_bytes", "dst_bytes",
@@ -16,16 +19,32 @@ columns = [
     "srv_serror_rate"
 ]
 
+# ==========================
+# Attack Explanation Function
+# ==========================
+def explain_attack(attack):
+    explanations = {
+        "DoS": "High traffic volume and server error rates suggest a Denial of Service attack.",
+        "Probe": "Suspicious scanning behaviour indicates possible reconnaissance activity.",
+        "R2L": "Multiple failed login attempts suggest a Remote-to-Local intrusion attempt.",
+        "U2R": "Privilege escalation behaviour detected indicating a User-to-Root attack.",
+        "Normal": "Traffic appears normal with no suspicious indicators."
+    }
+
+    return explanations.get(attack, "No explanation available.")
+
+
 @app.route("/")
 def home():
-    return "Intrusion Detection API Running 🚀"
+    return "Intrusion Detection API Running "
 
 
 # ==========================
-# 🔹 Manual Prediction API
+# Manual Prediction API
 # ==========================
 @app.route("/predict", methods=["POST"])
 def predict():
+
     data = request.json
 
     input_data = pd.DataFrame([[
@@ -43,17 +62,22 @@ def predict():
     probabilities = model.predict_proba(input_data)
     confidence = max(probabilities[0]) * 100
 
+    explanation = explain_attack(prediction)
+
     return jsonify({
         "prediction": prediction,
-        "confidence": f"{confidence:.2f}%"
+        "confidence": f"{confidence:.2f}%",
+        "explanation": explanation
     })
 
 
 # ==========================
-# 🎮 Gamified Simulation API
+# Gamified Simulation API
 # ==========================
 @app.route("/simulate", methods=["GET"])
 def simulate():
+
+    global network_health
 
     difficulty = request.args.get("difficulty", "medium")
     player_choice = request.args.get("choice")
@@ -85,7 +109,7 @@ def simulate():
             "srv_serror_rate": round(random.uniform(0.3, 0.9), 2)
         }
 
-    else:  # medium (default)
+    else:  # medium difficulty
         traffic = {
             "duration": random.randint(0, 15),
             "src_bytes": random.randint(50, 15000),
@@ -115,31 +139,50 @@ def simulate():
     probabilities = model.predict_proba(input_data)
     confidence = max(probabilities[0]) * 100
 
+    explanation = explain_attack(prediction)
+
     # --------------------------
-    # Game Logic (Score System)
+    # Game Logic
     # --------------------------
     result = None
     score_change = 0
 
     if player_choice:
+
         if player_choice == prediction:
             result = "Correct"
             score_change = 15 if difficulty == "hard" else 10
+            network_health = min(100, network_health + 5)
+
         else:
             result = "Wrong"
             score_change = -10 if difficulty == "hard" else -5
+            network_health = max(0, network_health - 10)
 
     # --------------------------
-    # Return Response
+    # Network Status
+    # --------------------------
+    if network_health >= 70:
+        network_status = "Secure"
+    elif network_health >= 40:
+        network_status = "Warning"
+    else:
+        network_status = "Critical"
+
+    # --------------------------
+    # Response
     # --------------------------
     return jsonify({
         "difficulty": difficulty,
         "traffic": traffic,
         "actual_prediction": prediction,
         "confidence": f"{confidence:.2f}%",
+        "explanation": explanation,
         "player_choice": player_choice,
         "result": result,
-        "score_change": score_change
+        "score_change": score_change,
+        "network_health": network_health,
+        "network_status": network_status
     })
 
 
