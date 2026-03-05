@@ -12,7 +12,7 @@ const handleChat = async (req, res) => {
         console.log(`🧠 CyberGuard received: "${userMessage}"`);
 
         // We use the most basic, stable model call possible
-        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         // The Hacker Approach: Manually inject the rules into the string
         const combinedPrompt = `

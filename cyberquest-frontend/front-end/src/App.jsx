@@ -13,12 +13,17 @@ import Tools from './pages/Tools';
 import ChatPage from './pages/Chatbot';
 import Challenges from './pages/Challenges';
 import Profile from './pages/Profile';
+import VaultIdScanner from './pages/VaultIdScan';
 
 function App() {
-  // 1. Check if the user is logged in
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('cyberquest_user');
-    return savedUser ? JSON.parse(savedUser) : null;
+  // ==========================================
+  // 🔥 HACKATHON BYPASS MODE ACTIVATED 🔥
+  // Tell your friends they don't need the database. 
+  // Remember to change this back to localStorage before your final submission!
+  // ==========================================
+  const [user, setUser] = useState({ 
+    username: "Animation_Team", 
+    total_xp: 5000 
   });
 
   // 2. Create a "Security Wrapper" for your old layout
@@ -83,6 +88,9 @@ function App() {
         
         {/* 🔥 FIX 2: Added the official route for the Profile page! */}
         <Route path="/profile" element={<ProtectedLayout><Profile /></ProtectedLayout>} />
+        
+        {/* 🔥 NEW: The VaultID Scanner Route! */}
+        <Route path="/vaultid" element={<ProtectedLayout><VaultIdScanner /></ProtectedLayout>} />
 
         {/* Catch-all: If they type a weird URL, send them to dashboard if logged in, or home if not */}
         <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} />} />

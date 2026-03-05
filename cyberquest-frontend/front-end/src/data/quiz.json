@@ -1,11 +1,161 @@
 [
   {
-    "id": 1,
+    "id": 310,
     "title": "The Phishing Lure",
     "question": "You receive an urgent email from 'support@paypa1.com'. What is the immediate red flag?",
     "options": ["The email is marked as 'urgent'.", "The sender's domain is misspelled.", "They are asking to verify identity.", "No signature."],
     "correctAnswer": 1,
     "points": 100,
     "explanation": "Attackers use typosquatting (like replacing 'l' with '1') to trick you."
+  },
+  {
+    "id": 311,
+    "title": "The Big Catch",
+    "question": "What is the term for a highly targeted phishing attack aimed specifically at C-Level executives (like a CEO or CFO)?",
+    "codeSnippet": "",
+    "options": [
+      "Spear Phishing",
+      "Whaling",
+      "Vishing",
+      "Smishing"
+    ],
+    "correctAnswer": 1,
+    "points": 150,
+    "explanation": "Whaling is a subset of spear phishing that specifically targets high-profile, wealthy, or powerful individuals within an organization."
+  },
+  {
+    "id": 312,
+    "title": "One-Way Street",
+    "question": "What is the primary difference between Hashing and Encryption?",
+    "codeSnippet": "",
+    "options": [
+      "Hashing is faster than encryption.",
+      "Encryption uses numbers, hashing uses letters.",
+      "Encryption is designed to be reversed (decrypted), while hashing is a one-way mathematical function.",
+      "Hashing is only used for databases."
+    ],
+    "correctAnswer": 2,
+    "points": 200,
+    "explanation": "You encrypt a secret message so you can decrypt and read it later. You hash a password so that it can never be reversed, only compared."
+  },
+  {
+    "id": 313,
+    "title": "The Invisible Man",
+    "question": "What type of malware is designed specifically to gain administrative-level control over a computer system without being detected?",
+    "codeSnippet": "",
+    "options": [
+      "Ransomware",
+      "Adware",
+      "Rootkit",
+      "Worm"
+    ],
+    "correctAnswer": 2,
+    "points": 250,
+    "explanation": "Rootkits bury themselves deep into the operating system (often at the kernel level) to hide their presence and give the attacker persistent 'root' access."
+  },
+  {
+    "id": 314,
+    "title": "The Man in the Middle",
+    "question": "Which attack involves an attacker secretly relaying and possibly altering the communications between two parties who believe they are directly communicating?",
+    "codeSnippet": "",
+    "options": [
+      "DDoS Attack",
+      "Man-in-the-Middle (MitM) Attack",
+      "Replay Attack",
+      "Phishing"
+    ],
+    "correctAnswer": 1,
+    "points": 150,
+    "explanation": "In a MitM attack (like ARP Spoofing on public Wi-Fi), the attacker sits between the user and the router, intercepting all traffic, passwords, and data."
+  },
+  {
+    "id": 315,
+    "title": "The Self-Replicator",
+    "question": "What is the main difference between a Virus and a Worm?",
+    "codeSnippet": "",
+    "options": [
+      "Viruses are written in C, worms are written in Python.",
+      "A virus requires a host file and human interaction to spread; a worm can self-replicate and spread across networks automatically.",
+      "Viruses steal data, worms only destroy data.",
+      "There is no difference."
+    ],
+    "correctAnswer": 1,
+    "points": 200,
+    "explanation": "Worms are incredibly dangerous because once they infect one machine on a network, they autonomously scan and infect others without anyone clicking anything."
+  },
+  {
+    "id": 316,
+    "title": "The Public Key",
+    "question": "In Asymmetric Encryption, if Alice wants to send a secure, secret message to Bob, which key does she use to encrypt the message?",
+    "codeSnippet": "",
+    "options": [
+      "Alice's Public Key",
+      "Alice's Private Key",
+      "Bob's Public Key",
+      "Bob's Private Key"
+    ],
+    "correctAnswer": 2,
+    "points": 300,
+    "explanation": "Alice encrypts the message using Bob's Public Key. Because of the math involved, the resulting ciphertext can *only* be unlocked by Bob's secretly held Private Key."
+  },
+  {
+    "id": 317,
+    "title": "The Voice on the Phone",
+    "question": "An attacker calls a company's IT helpdesk pretending to be the CEO who forgot their password. What is this specific type of social engineering called?",
+    "codeSnippet": "",
+    "options": [
+      "Smishing",
+      "Vishing (Voice Phishing)",
+      "Baiting",
+      "Dumpster Diving"
+    ],
+    "correctAnswer": 1,
+    "points": 100,
+    "explanation": "Vishing uses phone calls and voice communication to socially engineer victims into revealing sensitive information or resetting credentials."
+  },
+  {
+    "id": 318,
+    "title": "The Digital Bouncer",
+    "question": "What is the primary difference between an IDS (Intrusion Detection System) and an IPS (Intrusion Prevention System)?",
+    "codeSnippet": "",
+    "options": [
+      "IDS only works on Windows; IPS works on Linux.",
+      "An IDS only alerts you to malicious traffic; an IPS actively blocks or drops the malicious traffic.",
+      "An IDS is hardware; an IPS is software.",
+      "An IDS stops viruses; an IPS stops hackers."
+    ],
+    "correctAnswer": 1,
+    "points": 150,
+    "explanation": "Detection (IDS) acts like a security camera that triggers an alarm. Prevention (IPS) acts like a security guard that actually tackles the intruder."
+  },
+  {
+    "id": 319,
+    "title": "The Foundation",
+    "question": "In the CIA Triad (Confidentiality, Integrity, Availability), what does 'Availability' ensure?",
+    "codeSnippet": "",
+    "options": [
+      "That data is encrypted at rest.",
+      "That data is accurate and unchanged.",
+      "That systems and data are accessible to authorized users when needed.",
+      "That users are who they claim to be."
+    ],
+    "correctAnswer": 2,
+    "points": 100,
+    "explanation": "Availability ensures that network resources and data are online and functional. A DDoS attack is a direct assault on the Availability of a service."
+  },
+  {
+    "id": 320,
+    "title": "The Decoy",
+    "question": "What is a 'Honeypot' in cybersecurity?",
+    "codeSnippet": "",
+    "options": [
+      "A database where all passwords are saved.",
+      "A decoy system deliberately set up to attract, detect, and study hackers.",
+      "A tool used to crack Wi-Fi passwords.",
+      "A type of physical lock for server racks."
+    ],
+    "correctAnswer": 1,
+    "points": 150,
+    "explanation": "Honeypots look like vulnerable, juicy targets (like an unprotected database). When a hacker attacks it, the security team is alerted and can study the attacker's methods."
   }
 ]
