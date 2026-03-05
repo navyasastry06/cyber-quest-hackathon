@@ -1,0 +1,168 @@
+[
+  {
+    "id": 101,
+    "title": "The Leaky API",
+    "question": "Review this Express.js route. What is the critical vulnerability?",
+    "codeSnippet": "app.get('/api/users/:id', async (req, res) => {\n  const userId = req.params.id;\n  // Fetch user from DB\n  const user = await db.users.findOne({ id: userId });\n  res.json(user);\n});",
+    "options": [
+      "SQL Injection (SQLi)",
+      "Cross-Site Scripting (XSS)",
+      "Broken Object Level Authorization (IDOR)",
+      "Memory Leak"
+    ],
+    "correctAnswer": 2,
+    "points": 200,
+    "explanation": "This is IDOR (Insecure Direct Object Reference). The API fetches the user ID without checking if the logged-in user actually has permission to view that specific account!"
+  },
+
+  {
+    "id": 102,
+    "title": "The Login Trap",
+    "question": "What vulnerability exists in this login code?",
+    "codeSnippet": "app.post('/login', async (req, res) => {\n const { username, password } = req.body;\n const query = `SELECT * FROM users WHERE username='${username}' AND password='${password}'`;\n const user = await db.query(query);\n if(user) res.send('Login success');\n});",
+    "options": [
+      "SQL Injection",
+      "Cross-Site Scripting",
+      "CSRF",
+      "Broken Authentication"
+    ],
+    "correctAnswer": 0,
+    "points": 200,
+    "explanation": "User input is directly inserted into SQL query allowing attackers to manipulate the query."
+  },
+  {
+    "id": 103,
+    "title": "Comment Chaos",
+    "question": "What security issue is present in this code?",
+    "codeSnippet": "app.post('/comment', (req, res) => {\n const comment = req.body.comment;\n res.send(`<p>${comment}</p>`);\n});",
+    "options": [
+      "SQL Injection",
+      "Cross-Site Scripting (XSS)",
+      "CSRF",
+      "Directory Traversal"
+    ],
+    "correctAnswer": 1,
+    "points": 200,
+    "explanation": "User input is directly rendered in HTML without sanitization allowing script injection."
+  },
+  {
+    "id": 104,
+    "title": "Secret in Plain Sight",
+    "question": "What is the major security problem here?",
+    "codeSnippet": "const db = mysql.createConnection({\n host: 'localhost',\n user: 'admin',\n password: 'admin123',\n database: 'users'\n});",
+    "options": [
+      "Hardcoded Credentials",
+      "XSS",
+      "Buffer Overflow",
+      "CSRF"
+    ],
+    "correctAnswer": 0,
+    "points": 200,
+    "explanation": "Sensitive credentials should never be hardcoded in source code."
+  },
+  {
+    "id": 105,
+    "title": "Open Admin Panel",
+    "question": "What vulnerability does this route expose?",
+    "codeSnippet": "app.get('/admin/deleteUser/:id', (req, res) => {\n const id = req.params.id;\n db.users.delete(id);\n res.send('User deleted');\n});",
+    "options": [
+      "Missing Authentication",
+      "XSS",
+      "SQL Injection",
+      "Memory Leak"
+    ],
+    "correctAnswer": 0,
+    "points": 200,
+    "explanation": "Sensitive admin actions should require authentication and authorization."
+  },
+  {
+    "id": 106,
+    "title": "The File Explorer",
+    "question": "What vulnerability exists here?",
+    "codeSnippet": "app.get('/file', (req, res) => {\n const file = req.query.name;\n res.sendFile(__dirname + '/files/' + file);\n});",
+    "options": [
+      "Directory Traversal",
+      "SQL Injection",
+      "CSRF",
+      "XSS"
+    ],
+    "correctAnswer": 0,
+    "points": 200,
+    "explanation": "Attackers can access sensitive files using '../' paths."
+  },
+  {
+    "id": 107,
+    "title": "Cookie Trouble",
+    "question": "What vulnerability exists here?",
+    "codeSnippet": "res.cookie('sessionId', sessionId);",
+    "options": [
+      "Insecure Cookie Configuration",
+      "SQL Injection",
+      "XSS",
+      "Broken Authentication"
+    ],
+    "correctAnswer": 0,
+    "points": 200,
+    "explanation": "Cookies should use Secure and HttpOnly flags."
+  },
+  {
+    "id": 108,
+    "title": "Dangerous Command",
+    "question": "What vulnerability is present?",
+    "codeSnippet": "const { exec } = require('child_process');\napp.get('/ping', (req,res)=>{\n const host = req.query.host;\n exec(`ping ${host}`, (err,out)=>{\n res.send(out);\n });\n});",
+    "options": [
+      "Command Injection",
+      "XSS",
+      "SQL Injection",
+      "CSRF"
+    ],
+    "correctAnswer": 0,
+    "points": 200,
+    "explanation": "User input passed directly to system command allows command injection."
+  },
+  {
+    "id": 109,
+    "title": "Plaintext Passwords",
+    "question": "What vulnerability is here?",
+    "codeSnippet": "app.post('/register', async (req,res)=>{\n const {username,password} = req.body;\n await db.users.insert({username,password});\n});",
+    "options": [
+      "Plaintext Password Storage",
+      "XSS",
+      "CSRF",
+      "Memory Leak"
+    ],
+    "correctAnswer": 0,
+    "points": 200,
+    "explanation": "Passwords should be hashed using bcrypt or similar algorithms."
+  },
+  {
+    "id": 110,
+    "title": "Unauthorized Transfer",
+    "question": "What vulnerability is likely here?",
+    "codeSnippet": "app.post('/transfer', (req,res)=>{\n const {amount, to} = req.body;\n bank.transfer(req.user.id, to, amount);\n res.send('Transfer done');\n});",
+    "options": [
+      "CSRF",
+      "SQL Injection",
+      "XSS",
+      "Directory Traversal"
+    ],
+    "correctAnswer": 0,
+    "points": 200,
+    "explanation": "There is no CSRF protection like tokens."
+  },
+  {
+    "id": 111,
+    "title": "Debug Disaster",
+    "question": "What vulnerability is shown here?",
+    "codeSnippet": "app.use((err,req,res,next)=>{\n res.send(err.stack);\n});",
+    "options": [
+      "Information Disclosure",
+      "SQL Injection",
+      "XSS",
+      "CSRF"
+    ],
+    "correctAnswer": 0,
+    "points": 200,
+    "explanation": "Returning stack traces exposes sensitive server information."
+  }
+]
