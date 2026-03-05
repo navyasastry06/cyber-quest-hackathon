@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Cyber Attack Simulator</title>
+<title>Cyber Attack Simulator - SOC Dashboard</title>
 
 <style>
 
@@ -27,7 +28,7 @@ height:calc(100vh - 80px);
 
 .panel{
 flex:1;
-padding:30px;
+padding:25px;
 }
 
 .left{
@@ -40,7 +41,7 @@ background:#020617;
 }
 
 button{
-padding:10px 15px;
+padding:10px 16px;
 margin:5px;
 border:none;
 border-radius:6px;
@@ -89,7 +90,36 @@ font-weight:bold;
 
 .score{
 font-size:18px;
-margin-top:15px;
+margin-top:10px;
+}
+
+/* SOC Dashboard */
+
+.soc-feed{
+background:#111827;
+padding:15px;
+border-radius:8px;
+height:200px;
+overflow-y:auto;
+font-family:monospace;
+}
+
+.alert{
+padding:8px;
+margin-bottom:6px;
+border-radius:4px;
+}
+
+.alert-critical{
+background:#7f1d1d;
+}
+
+.alert-warning{
+background:#78350f;
+}
+
+.alert-info{
+background:#1e3a8a;
 }
 
 </style>
@@ -99,7 +129,7 @@ margin-top:15px;
 <body>
 
 <header>
-Cyber Attack Simulator
+Cyber Attack Simulator SOC Dashboard
 </header>
 
 <div class="container">
@@ -109,7 +139,7 @@ Cyber Attack Simulator
 <button class="generate" onclick="generateAttack()">Generate Attack</button>
 
 <div class="question" id="questionBox">
-Click "Generate Attack" to start the challenge.
+Click "Generate Attack" to start analysis
 </div>
 
 <div class="card">
@@ -153,6 +183,14 @@ Click "Generate Attack" to start the challenge.
 Total Score: <span id="totalScore">0</span>
 </div>
 
+<hr>
+
+<h2>🚨 SOC Live Attack Feed</h2>
+
+<div id="socFeed" class="soc-feed">
+No alerts yet...
+</div>
+
 </div>
 
 </div>
@@ -163,56 +201,35 @@ let currentAttack=""
 let currentData=null
 let totalScore=0
 
-function generateQuestion(traffic){
-
-if(traffic.failed_logins > 5){
-return "Multiple failed login attempts detected. Identify the cyber attack."
-}
-
-if(traffic.srv_serror_rate > 0.8){
-return "Extremely high server error rate detected. What attack could cause this?"
-}
-
-if(traffic.count > 200){
-return "Huge spike in connection count detected. What attack is this?"
-}
-
-if(traffic.num_compromised > 2){
-return "Several compromised accounts detected. What attack might this indicate?"
-}
-
-return "Suspicious network behaviour detected. Identify the attack type."
-
-}
-
 async function generateAttack(){
 
-const response = await fetch("http://127.0.0.1:5000/simulate")
-const data = await response.json()
+const response=await fetch("http://127.0.0.1:5000/simulate")
+const data=await response.json()
 
-currentAttack = data.actual_prediction
-currentData = data
+currentAttack=data.actual_prediction
+currentData=data
 
-const traffic = data.traffic
+const traffic=data.traffic
 
-document.getElementById("duration").innerText = traffic.duration
-document.getElementById("src_bytes").innerText = traffic.src_bytes
-document.getElementById("dst_bytes").innerText = traffic.dst_bytes
-document.getElementById("failed_logins").innerText = traffic.failed_logins
-document.getElementById("logged_in").innerText = traffic.logged_in
-document.getElementById("num_compromised").innerText = traffic.num_compromised
-document.getElementById("count").innerText = traffic.count
-document.getElementById("srv_serror_rate").innerText = traffic.srv_serror_rate
+document.getElementById("duration").innerText=traffic.duration
+document.getElementById("src_bytes").innerText=traffic.src_bytes
+document.getElementById("dst_bytes").innerText=traffic.dst_bytes
+document.getElementById("failed_logins").innerText=traffic.failed_logins
+document.getElementById("logged_in").innerText=traffic.logged_in
+document.getElementById("num_compromised").innerText=traffic.num_compromised
+document.getElementById("count").innerText=traffic.count
+document.getElementById("srv_serror_rate").innerText=traffic.srv_serror_rate
 
-document.getElementById("questionBox").innerText = generateQuestion(traffic)
+document.getElementById("questionBox").innerText =
+"Analyze the network traffic and identify the cyber attack."
 
-document.getElementById("attack").innerText = "?"
-document.getElementById("confidence").innerText = "?"
-document.getElementById("explanation").innerText = "?"
-document.getElementById("health").innerText = "?"
+document.getElementById("attack").innerText="?"
+document.getElementById("confidence").innerText="?"
+document.getElementById("explanation").innerText="?"
+document.getElementById("health").innerText="?"
 
-document.getElementById("result").innerText = ""
-document.getElementById("score").innerText = ""
+document.getElementById("result").innerText=""
+document.getElementById("score").innerText=""
 
 }
 
@@ -226,27 +243,74 @@ return
 let result
 let scoreChange
 
-if(type === currentAttack){
-result = "Correct"
-scoreChange = 10
-document.getElementById("result").className = "correct"
+if(type===currentAttack){
+result="Correct"
+scoreChange=10
+document.getElementById("result").className="correct"
+}else{
+result="Wrong"
+scoreChange=-5
+document.getElementById("result").className="wrong"
 }
+
+totalScore+=scoreChange
+
+document.getElementById("attack").innerText=currentAttack
+document.getElementById("confidence").innerText=currentData.confidence
+document.getElementById("explanation").innerText=currentData.explanation
+document.getElementById("health").innerText=currentData.network_health
+
+document.getElementById("result").innerText=result
+document.getElementById("score").innerText=scoreChange
+document.getElementById("totalScore").innerText=totalScore
+
+generateSOCAlert(currentAttack)
+
+}
+
+function generateSOCAlert(attack){
+
+const feed=document.getElementById("socFeed")
+
+const alert=document.createElement("div")
+alert.classList.add("alert")
+
+let message=""
+let type="INFO"
+
+if(attack==="DoS"){
+type="CRITICAL"
+alert.classList.add("alert-critical")
+message="Denial of Service attack detected"
+}
+
+else if(attack==="R2L"){
+type="WARNING"
+alert.classList.add("alert-warning")
+message="Remote to Local intrusion attempt"
+}
+
+else if(attack==="U2R"){
+type="CRITICAL"
+alert.classList.add("alert-critical")
+message="User to Root privilege escalation detected"
+}
+
+else if(attack==="Probe"){
+type="INFO"
+alert.classList.add("alert-info")
+message="Network scanning activity detected"
+}
+
 else{
-result = "Wrong"
-scoreChange = -5
-document.getElementById("result").className = "wrong"
+type="INFO"
+alert.classList.add("alert-info")
+message="Normal network traffic observed"
 }
 
-totalScore += scoreChange
+alert.innerText=`[${type}] ${message}`
 
-document.getElementById("attack").innerText = currentAttack
-document.getElementById("confidence").innerText = currentData.confidence
-document.getElementById("explanation").innerText = currentData.explanation
-document.getElementById("health").innerText = currentData.network_health
-
-document.getElementById("result").innerText = result
-document.getElementById("score").innerText = scoreChange
-document.getElementById("totalScore").innerText = totalScore
+feed.prepend(alert)
 
 }
 
