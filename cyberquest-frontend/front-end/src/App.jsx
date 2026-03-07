@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { UserCircle2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { useColors } from './context/useColors';
@@ -51,7 +50,20 @@ const ThemeToggle = () => {
 // ── Header bar (reads theme for colors) ─────────────────────────────
 const HeaderBar = ({ user, onLogout }) => {
   const c = useColors();
-  const { t, i18n } = useTranslation();
+  
+  // Custom Google Translate Dropdown logic
+  const [currentLang, setCurrentLang] = useState('en');
+
+  useEffect(() => {
+    const match = document.cookie.match(/googtrans=\/en\/([a-z]{2})/);
+    if (match) setCurrentLang(match[1]);
+  }, []);
+
+  const changeLanguage = (lang) => {
+    document.cookie = `googtrans=/en/${lang}; path=/`;
+    document.cookie = `googtrans=/en/${lang}; path=/; domain=${window.location.hostname}`;
+    window.location.reload();
+  };
 
   return (
     <div style={{ padding: '14px 28px', display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
@@ -69,8 +81,8 @@ const HeaderBar = ({ user, onLogout }) => {
         <div style={{ width: 1, height: 16, background: c.border }} />
 
         <select 
-          value={i18n.language.split('-')[0]} 
-          onChange={(e) => i18n.changeLanguage(e.target.value)}
+          value={currentLang} 
+          onChange={(e) => changeLanguage(e.target.value)}
           style={{
             background: 'transparent', border: 'none', color: c.textSecondary, 
             fontSize: 12, fontWeight: 700, outline: 'none', cursor: 'pointer',
@@ -80,6 +92,9 @@ const HeaderBar = ({ user, onLogout }) => {
           <option value="en" style={{ color: '#000' }}>EN</option>
           <option value="es" style={{ color: '#000' }}>ES</option>
           <option value="hi" style={{ color: '#000' }}>HI</option>
+          <option value="te" style={{ color: '#000' }}>TE</option>
+          <option value="kn" style={{ color: '#000' }}>KN</option>
+          <option value="fr" style={{ color: '#000' }}>FR</option>
         </select>
 
         <div style={{ width: 1, height: 16, background: c.border }} />
@@ -89,7 +104,7 @@ const HeaderBar = ({ user, onLogout }) => {
             <UserCircle2 size={18} />
           </div>
           <span style={{ fontSize: 13, fontWeight: 600, color: c.textSecondary }}>
-            {t('operative')}: <strong style={{ color: c.indigo }}>{user?.username}</strong>
+            Operative: <strong style={{ color: c.indigo }}>{user?.username}</strong>
           </span>
         </Link>
 
@@ -97,7 +112,7 @@ const HeaderBar = ({ user, onLogout }) => {
 
         <button onClick={onLogout}
           style={{ fontSize: 11, fontWeight: 900, color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.05em' }}>
-          {t('logout')}
+          LOGOUT
         </button>
       </div>
     </div>
