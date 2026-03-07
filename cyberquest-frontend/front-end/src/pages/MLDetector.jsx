@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import Lottie from 'lottie-react';
+import happyRobotAnim from '../assets/happy-robot.json';
+import sadbotAnim from '../assets/sadbot.json';
 
 export default function MLDetector() {
 
@@ -8,17 +11,26 @@ export default function MLDetector() {
   const [score, setScore] = useState(0);
   const [alerts, setAlerts] = useState([]);
   const [revealed, setRevealed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const generateAttack = async () => {
-
-    const response = await fetch("http://127.0.0.1:5000/simulate");
-    const json = await response.json();
-
-    setData(json);
-    setTraffic(json.traffic);
-
+    setIsLoading(true);
     setResult("");
     setRevealed(false);
+
+    try {
+      const response = await fetch("http://127.0.0.1:5001/simulate");
+      if (!response.ok) throw new Error("Simulation server failed.");
+      const json = await response.json();
+
+      setData(json);
+      setTraffic(json.traffic);
+    } catch (err) {
+      alert("Failed to connect to the AI model server. Ensure the python backend is running.");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const guessAttack = (type) => {
@@ -88,9 +100,10 @@ export default function MLDetector() {
 
       <button
         onClick={generateAttack}
-        className="bg-blue-600 text-white px-4 py-2 rounded mb-6 hover:bg-blue-700"
+        disabled={isLoading}
+        className={`${isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded mb-6`}
       >
-        Generate Attack
+        {isLoading ? 'Generating...' : 'Generate Attack'}
       </button>
 
       <div className="grid grid-cols-2 gap-8">
@@ -161,10 +174,20 @@ export default function MLDetector() {
 
           )}
 
-          <div className="mt-4 text-sm">
+          <div className="mt-4 text-sm flex items-center gap-6">
 
-            <p><strong>Result:</strong> {result}</p>
-            <p><strong>Total Score:</strong> {score}</p>
+            <div>
+              <p className={`text-lg font-bold mb-1 ${result === 'Correct' ? 'text-green-500' : 'text-red-500'}`}>
+                {result === 'Correct' ? '✔ Correct!' : result === 'Wrong' ? '✘ Incorrect' : ''}
+              </p>
+              <p className="font-semibold">Total Score: {score}</p>
+            </div>
+
+            {revealed && result && (
+              <div className="w-48 h-48 flex-shrink-0">
+                <Lottie animationData={result === "Correct" ? happyRobotAnim : sadbotAnim} loop={true} autoplay={true} />
+              </div>
+            )}
 
           </div>
 

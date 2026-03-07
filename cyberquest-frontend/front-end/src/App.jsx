@@ -17,19 +17,11 @@ import Challenges from './pages/Challenges';
 import Profile from './pages/Profile';
 import VaultIdScanner from './pages/VaultIdScan';
 
-<<<<<<< HEAD
 const getValidUser = () => {
   const token = localStorage.getItem('cyberquest_token');
   const savedUser = localStorage.getItem('cyberquest_user');
   
-  // -- DEVELOPMENT BYPASS: Auto-login if no user is found --
-  if (!token || !savedUser) {
-    const dummyUser = { id: 'dev_user_1', username: 'guest_operative', email: 'guest@cyberquest.com', xp: 1000 };
-    // Set a fake token (this won't work for real API calls, but passes the frontend check)
-    localStorage.setItem('cyberquest_token', 'dev_fake_token.' + btoa(JSON.stringify({ exp: (Date.now() / 1000) + 86400 })) + '.signature');
-    localStorage.setItem('cyberquest_user', JSON.stringify(dummyUser));
-    return dummyUser;
-  }
+  if (!token || !savedUser) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     if (payload.exp * 1000 < Date.now()) {
