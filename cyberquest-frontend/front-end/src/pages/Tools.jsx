@@ -46,7 +46,10 @@ const Tools = () => {
     if (!hashInput) return;
     try {
       if (hashMode === 'BASE64 ENCODE') setHashResult(btoa(hashInput));
-      else if (hashMode === 'BASE64 DECODE') setHashResult(atob(hashInput));
+      else if (hashMode === 'BASE64 DECODE') {
+        try { setHashResult(atob(hashInput)); } 
+        catch { setHashResult('EXECUTION_FAILURE: INVALID BASE64 SEQUENCE'); }
+      }
       else {
         const msgBuffer = new TextEncoder().encode(hashInput);
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
