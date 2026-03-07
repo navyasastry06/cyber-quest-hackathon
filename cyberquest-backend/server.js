@@ -10,7 +10,7 @@ app.use(express.json());
 
 // ✅ Single, consolidated CORS config (no more wildcard override)
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://mail.google.com'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://mail.google.com'],
     methods: ['GET', 'POST', 'PATCH', 'DELETE']
 }));
 

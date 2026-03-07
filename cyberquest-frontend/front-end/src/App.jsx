@@ -7,6 +7,7 @@ import { useColors } from './context/useColors';
 
 import Home from './pages/Home';
 import Auth from './components/Auth';
+import MLDetector from './pages/MLDetector';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Simulator from './pages/Simulator';
@@ -19,6 +20,7 @@ import VaultIdScanner from './pages/VaultIdScan';
 const getValidUser = () => {
   const token = localStorage.getItem('cyberquest_token');
   const savedUser = localStorage.getItem('cyberquest_user');
+  
   if (!token || !savedUser) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
@@ -159,18 +161,21 @@ function AppInner() {
 
   return (
     <Router>
+
       <Routes>
         <Route path="/"           element={<Home />} />
         <Route path="/auth"       element={!user ? <Auth onLoginSuccess={setUser} /> : <Navigate to="/dashboard" />} />
         <Route path="/dashboard"  element={wrap(<Dashboard />)} />
         <Route path="/simulator"  element={wrap(<Simulator />)} />
         <Route path="/tools"      element={wrap(<Tools />)} />
+        <Route path="/ai-detector"element={wrap(<MLDetector />)} />
         <Route path="/chat"       element={wrap(<ChatPage />)} />
         <Route path="/challenges" element={wrap(<Challenges />)} />
         <Route path="/profile"    element={wrap(<Profile />)} />
         <Route path="/vaultid"    element={wrap(<VaultIdScanner />)} />
         <Route path="*"           element={<Navigate to={user ? '/dashboard' : '/'} />} />
       </Routes>
+
     </Router>
   );
 }

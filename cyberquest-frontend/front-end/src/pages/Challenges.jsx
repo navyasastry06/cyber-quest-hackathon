@@ -7,6 +7,7 @@ import { useColors } from '../context/useColors';
 // Import our new Lottie animations
 import happyRobotAnim from '../assets/happy-robot.json';
 import confettiAnim from '../assets/confetti.json';
+import sadbotAnim from '../assets/sadbot.json';
 
 const CHALLENGE_META = {
   'Threat Quiz':    { icon: Eye,    color: '#06b6d4', desc: 'Multiple-choice phishing and threat identification questions.' },
@@ -170,7 +171,7 @@ const Challenges = () => {
                 
                 <div style={{ position: 'relative', zIndex: 1 }}>
                   <div style={{ width: 160, height: 160, margin: '0 auto 16px' }}>
-                    <Lottie animationData={happyRobotAnim} loop={true} />
+                    <Lottie animationData={happyRobotAnim} loop={true} autoplay={true}/>
                   </div>
                   
                   <h2 style={{ color: CHALLENGE_META[activeChallenge].color, fontWeight: 900, fontSize: 32, marginBottom: 8 }}>
@@ -245,7 +246,9 @@ const Challenges = () => {
                       {/* Feedback */}
                       {feedback && (
                         <div style={{ background: feedback.correct ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border:`1px solid ${feedback.correct?'rgba(16,185,129,0.35)':'rgba(239,68,68,0.35)'}`, borderRadius:16, padding:'16px 20px', marginBottom:20, display:'flex', alignItems:'flex-start', gap:12 }}>
-                          {feedback.correct ? <CheckCircle2 size={18} color="#10b981" style={{ flexShrink:0, marginTop:2 }} /> : <AlertTriangle size={18} color="#ef4444" style={{ flexShrink:0, marginTop:2 }} />}
+                          <div style={{ width: 100, height: 100, flexShrink: 0 }}>
+                            <Lottie animationData={feedback.correct ? happyRobotAnim : sadbotAnim} loop={true} autoplay={true} />
+                          </div>
                           <div>
                             <p style={{ fontWeight:900, fontSize:14, color: feedback.correct ? '#10b981' : '#ef4444', margin:'0 0 4px' }}>
                               {feedback.correct ? `✔ Correct! +${feedback.xpEarned || 100} XP` : '✘ Incorrect'}
