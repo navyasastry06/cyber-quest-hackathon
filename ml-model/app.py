@@ -3,19 +3,23 @@ from flask_cors import CORS
 import joblib
 import pandas as pd
 import random
-import google.generativeai as genai
 import os
+import google.generativeai as genai
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 
 # ==========================
 # Gemini Configuration
 # ==========================
 
-genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+API_KEY = os.getenv("GOOGLE_API_KEY")
 
-gemini_model = genai.GenerativeModel("gemini-pro")
+if API_KEY:
+    genai.configure(api_key=API_KEY)
+    gemini_model = genai.GenerativeModel("gemini-pro")
+else:
+    gemini_model = None
 
 
 # ==========================
@@ -26,7 +30,6 @@ model = joblib.load("intrusion_model.pkl")
 
 network_health = 100
 
-# Feature order (MUST match training)
 columns = [
     "duration",
     "src_bytes",
@@ -40,15 +43,16 @@ columns = [
 
 
 # ==========================
-# Improved Gemini Explanation
+# Gemini Explanation
 # ==========================
 
 def explain_attack(attack, traffic):
 
-    prompt = f"""
-You are a cybersecurity analyst.
+    if gemini_model is None:
+        return fallback_explanation(attack)
 
-Explain briefly why the following network traffic could indicate a {attack} attack.
+    prompt = f"""
+Explain briefly why this network traffic indicates a {attack} cyber attack.
 
 Traffic Data:
 Duration: {traffic['duration']}
@@ -60,83 +64,122 @@ Compromised Accounts: {traffic['num_compromised']}
 Connection Count: {traffic['count']}
 Server Error Rate: {traffic['srv_serror_rate']}
 
-Explain in simple language using 1 or 2 sentences.
+Explain in one short sentence.
 """
 
     try:
         response = gemini_model.generate_content(prompt)
+        return response.text
+    except:
+        return fallback_explanation(attack)
 
-        # Sometimes Gemini returns text differently
-        if hasattr(response, "text"):
-            return response.text.strip()
 
-        elif response.candidates:
-            return response.candidates[0].content.parts[0].text.strip()
+# ==========================
+# Fallback Explanation
+# ==========================
 
-        else:
-            return "AI explanation unavailable."
+def fallback_explanation(attack):
 
-    except Exception as e:
-        print("Gemini Error:", e)
+    explanations = {
 
-        # Fallback explanation if Gemini fails
-        fallback = {
-            "DoS": "Large traffic spikes and server errors suggest a Denial of Service attack.",
-            "Probe": "Suspicious scanning patterns suggest reconnaissance activity.",
-            "R2L": "Multiple login attempts indicate a possible remote-to-local intrusion.",
-            "U2R": "Privilege escalation behavior suggests a user-to-root attack.",
-            "Normal": "Traffic appears normal without suspicious indicators."
+        "DoS":
+        "Large traffic spikes and high server error rates suggest a Denial of Service attack.",
+
+        "Probe":
+        "Multiple connection attempts with small data transfers suggest network scanning behaviour.",
+
+        "R2L":
+        "Repeated failed login attempts indicate a remote attacker trying to access the system.",
+
+        "U2R":
+        "A logged-in user performing privilege escalation suggests a user-to-root attack.",
+
+        "Normal":
+        "Traffic patterns appear normal with no indicators of malicious behaviour."
+
+    }
+
+    return explanations.get(attack, "No explanation available.")
+
+
+# ==========================
+# Generate Balanced Traffic
+# ==========================
+
+def generate_traffic():
+
+    attack_type = random.choice(["DoS", "Probe", "R2L", "U2R", "Normal"])
+
+    if attack_type == "DoS":
+
+        traffic = {
+            "duration": random.randint(1,3),
+            "src_bytes": random.randint(9000,15000),
+            "dst_bytes": random.randint(0,100),
+            "failed_logins": 0,
+            "logged_in": 0,
+            "num_compromised": 0,
+            "count": random.randint(200,250),
+            "srv_serror_rate": round(random.uniform(0.85,1.0),2)
         }
 
-        return fallback.get(attack, "AI explanation unavailable.")
+    elif attack_type == "Probe":
+
+        traffic = {
+            "duration": random.randint(5,10),
+            "src_bytes": random.randint(100,800),
+            "dst_bytes": random.randint(50,300),
+            "failed_logins": 0,
+            "logged_in": 0,
+            "num_compromised": 0,
+            "count": random.randint(120,180),
+            "srv_serror_rate": round(random.uniform(0.1,0.3),2)
+        }
+
+    elif attack_type == "R2L":
+
+        traffic = {
+            "duration": random.randint(5,15),
+            "src_bytes": random.randint(200,1500),
+            "dst_bytes": random.randint(100,600),
+            "failed_logins": random.randint(7,12),
+            "logged_in": 0,
+            "num_compromised": 0,
+            "count": random.randint(20,80),
+            "srv_serror_rate": round(random.uniform(0.2,0.5),2)
+        }
+
+    elif attack_type == "U2R":
+
+        traffic = {
+            "duration": random.randint(5,10),
+            "src_bytes": random.randint(2000,6000),
+            "dst_bytes": random.randint(100,400),
+            "failed_logins": 0,
+            "logged_in": 1,
+            "num_compromised": random.randint(3,6),
+            "count": random.randint(30,90),
+            "srv_serror_rate": round(random.uniform(0.2,0.5),2)
+        }
+
+    else:  # Normal
+
+        traffic = {
+            "duration": random.randint(1,10),
+            "src_bytes": random.randint(50,600),
+            "dst_bytes": random.randint(50,600),
+            "failed_logins": 0,
+            "logged_in": 1,
+            "num_compromised": 0,
+            "count": random.randint(10,40),
+            "srv_serror_rate": round(random.uniform(0.0,0.2),2)
+        }
+
+    return traffic
 
 
 # ==========================
-# Home Route
-# ==========================
-
-@app.route("/")
-def home():
-    return "Intrusion Detection API Running 🚀"
-
-
-# ==========================
-# Manual Prediction API
-# ==========================
-
-@app.route("/predict", methods=["POST"])
-def predict():
-
-    data = request.json
-
-    input_data = pd.DataFrame([[
-        data["duration"],
-        data["src_bytes"],
-        data["dst_bytes"],
-        data["failed_logins"],
-        data["logged_in"],
-        data["num_compromised"],
-        data["count"],
-        data["srv_serror_rate"]
-    ]], columns=columns)
-
-    prediction = model.predict(input_data)[0]
-
-    probabilities = model.predict_proba(input_data)
-
-    confidence = max(probabilities[0]) * 100
-
-    explanation = explain_attack(prediction, data)
-
-    return jsonify({
-        "prediction": prediction,
-        "confidence": f"{confidence:.2f}%",
-        "explanation": explanation
-    })
-
-
-# ==========================
-# Gamified Simulation API
+# Simulation Endpoint
 # ==========================
 
 @app.route("/simulate", methods=["GET"])
@@ -144,58 +187,12 @@ def simulate():
 
     global network_health
 
-    difficulty = request.args.get("difficulty", "medium")
     player_choice = request.args.get("choice")
 
-    # --------------------------
-    # Generate traffic
-    # --------------------------
-
-    if difficulty == "easy":
-
-        traffic = {
-            "duration": random.randint(0, 3),
-            "src_bytes": random.randint(8000, 15000),
-            "dst_bytes": random.randint(0, 200),
-            "failed_logins": 0,
-            "logged_in": 0,
-            "num_compromised": 0,
-            "count": random.randint(180, 250),
-            "srv_serror_rate": round(random.uniform(0.8, 1.0), 2)
-        }
-
-    elif difficulty == "hard":
-
-        traffic = {
-            "duration": random.randint(5, 15),
-            "src_bytes": random.randint(1000, 9000),
-            "dst_bytes": random.randint(200, 900),
-            "failed_logins": random.randint(1, 7),
-            "logged_in": random.randint(0, 1),
-            "num_compromised": random.randint(1, 4),
-            "count": random.randint(30, 180),
-            "srv_serror_rate": round(random.uniform(0.3, 0.9), 2)
-        }
-
-    else:
-
-        traffic = {
-            "duration": random.randint(0, 15),
-            "src_bytes": random.randint(50, 15000),
-            "dst_bytes": random.randint(0, 1200),
-            "failed_logins": random.randint(0, 8),
-            "logged_in": random.randint(0, 1),
-            "num_compromised": random.randint(0, 5),
-            "count": random.randint(1, 250),
-            "srv_serror_rate": round(random.uniform(0.0, 1.0), 2)
-        }
-
-
-    # --------------------------
-    # ML Prediction
-    # --------------------------
+    traffic = generate_traffic()
 
     input_data = pd.DataFrame([[
+
         traffic["duration"],
         traffic["src_bytes"],
         traffic["dst_bytes"],
@@ -204,20 +201,15 @@ def simulate():
         traffic["num_compromised"],
         traffic["count"],
         traffic["srv_serror_rate"]
+
     ]], columns=columns)
 
     prediction = model.predict(input_data)[0]
 
     probabilities = model.predict_proba(input_data)
-
     confidence = max(probabilities[0]) * 100
 
     explanation = explain_attack(prediction, traffic)
-
-
-    # --------------------------
-    # Game Logic
-    # --------------------------
 
     result = None
     score_change = 0
@@ -225,38 +217,24 @@ def simulate():
     if player_choice:
 
         if player_choice == prediction:
-
             result = "Correct"
-            score_change = 15 if difficulty == "hard" else 10
+            score_change = 10
             network_health = min(100, network_health + 5)
 
         else:
-
             result = "Wrong"
-            score_change = -10 if difficulty == "hard" else -5
+            score_change = -5
             network_health = max(0, network_health - 10)
-
-
-    # --------------------------
-    # Network Status
-    # --------------------------
 
     if network_health >= 70:
         network_status = "Secure"
-
     elif network_health >= 40:
         network_status = "Warning"
-
     else:
         network_status = "Critical"
 
-
-    # --------------------------
-    # Response
-    # --------------------------
-
     return jsonify({
-        "difficulty": difficulty,
+
         "traffic": traffic,
         "actual_prediction": prediction,
         "confidence": f"{confidence:.2f}%",
@@ -266,6 +244,7 @@ def simulate():
         "score_change": score_change,
         "network_health": network_health,
         "network_status": network_status
+
     })
 
 
