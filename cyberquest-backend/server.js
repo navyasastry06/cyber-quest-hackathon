@@ -8,11 +8,8 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// ✅ Single, consolidated CORS config (no more wildcard override)
-app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://mail.google.com'],
-    methods: ['GET', 'POST', 'PATCH', 'DELETE']
-}));
+// ✅ Generic CORS config to allow frontend fetching from Vercel
+app.use(cors());
 
 // ✅ Global rate limiter — 100 requests per 15 minutes per IP
 const globalLimiter = rateLimit({
