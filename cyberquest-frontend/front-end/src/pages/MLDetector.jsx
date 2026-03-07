@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Lottie from 'lottie-react';
 import happyRobotAnim from '../assets/happy-robot.json';
 import sadbotAnim from '../assets/sadbot.json';
+import { ML_API_BASE_URL } from '../config';
 
 export default function MLDetector() {
 
@@ -19,7 +20,7 @@ export default function MLDetector() {
     setRevealed(false);
 
     try {
-      const response = await fetch("http://127.0.0.1:5001/simulate");
+      const response = await fetch(`${ML_API_BASE_URL}/simulate`);
       if (!response.ok) throw new Error("Simulation server failed.");
       const json = await response.json();
 

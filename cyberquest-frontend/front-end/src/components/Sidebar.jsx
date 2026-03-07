@@ -4,19 +4,19 @@ import { LayoutDashboard, ShieldAlert, Wrench, Bot, Shield, Trophy, Search } fro
 import { useColors } from '../context/useColors';
 
 const NAV_ITEMS = [
-  { to: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/simulator',   icon: ShieldAlert,     label: 'Simulator' },
-  { to: '/tools',       icon: Wrench,          label: 'Threat Tools' },
-  { to: '/ai-detector', icon: Shield,          label: 'AI Detector' },
-  { to: '/chat',        icon: Bot,             label: 'AI Copilot' },
-  { to: '/vaultid',     icon: Search,          label: 'Intel Scanner' },
-  { to: '/challenges',  icon: Trophy,          label: 'Challenges' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/simulator', icon: ShieldAlert, label: 'Simulator' },
+  { to: '/tools', icon: Wrench, label: 'Threat Tools' },
+  { to: '/ai-detector', icon: Shield, label: 'Intrusion Detector' },
+  { to: '/chat', icon: Bot, label: 'AI Copilot' },
+  { to: '/vaultid', icon: Search, label: 'Intel Scanner' },
+  { to: '/challenges', icon: Trophy, label: 'Challenges' },
 ];
 
 const Sidebar = () => {
-  const location  = useLocation();
-  const c         = useColors();
-  const isActive  = (path) => location.pathname === path;
+  const location = useLocation();
+  const c = useColors();
+  const isActive = (path) => location.pathname === path;
 
   return (
     <div style={{
