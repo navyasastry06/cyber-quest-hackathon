@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { UserCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { useColors } from './context/useColors';
@@ -50,6 +51,8 @@ const ThemeToggle = () => {
 // ── Header bar (reads theme for colors) ─────────────────────────────
 const HeaderBar = ({ user, onLogout }) => {
   const c = useColors();
+  const { t, i18n } = useTranslation();
+
   return (
     <div style={{ padding: '14px 28px', display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
       <div style={{
@@ -65,12 +68,28 @@ const HeaderBar = ({ user, onLogout }) => {
 
         <div style={{ width: 1, height: 16, background: c.border }} />
 
+        <select 
+          value={i18n.language.split('-')[0]} 
+          onChange={(e) => i18n.changeLanguage(e.target.value)}
+          style={{
+            background: 'transparent', border: 'none', color: c.textSecondary, 
+            fontSize: 12, fontWeight: 700, outline: 'none', cursor: 'pointer',
+            paddingRight: 4, fontFamily: 'inherit'
+          }}
+        >
+          <option value="en" style={{ color: '#000' }}>EN</option>
+          <option value="es" style={{ color: '#000' }}>ES</option>
+          <option value="hi" style={{ color: '#000' }}>HI</option>
+        </select>
+
+        <div style={{ width: 1, height: 16, background: c.border }} />
+
         <Link to="/profile" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 34, height: 34, borderRadius: '50%', background: `${c.indigo}18`, border: `1px solid ${c.indigo}35`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: c.indigo }}>
             <UserCircle2 size={18} />
           </div>
           <span style={{ fontSize: 13, fontWeight: 600, color: c.textSecondary }}>
-            Operative: <strong style={{ color: c.indigo }}>{user?.username}</strong>
+            {t('operative')}: <strong style={{ color: c.indigo }}>{user?.username}</strong>
           </span>
         </Link>
 
@@ -78,7 +97,7 @@ const HeaderBar = ({ user, onLogout }) => {
 
         <button onClick={onLogout}
           style={{ fontSize: 11, fontWeight: 900, color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.05em' }}>
-          LOGOUT
+          {t('logout')}
         </button>
       </div>
     </div>
