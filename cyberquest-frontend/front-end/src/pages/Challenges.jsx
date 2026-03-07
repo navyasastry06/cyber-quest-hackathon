@@ -1,304 +1,279 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Shield, Zap, CheckCircle, XCircle, ArrowLeft, Code, Terminal, BrainCircuit, AlertTriangle } from 'lucide-react';
-import quizData from '../data/quiz.json';
-import codeData from '../data/code.json';
-import logData from '../data/log.json';
+import { Trophy, Zap, Target, ChevronRight, CheckCircle2, AlertTriangle, Code2, Shield, Eye, Search, Loader2 } from 'lucide-react';
+import Lottie from 'lottie-react';
+import API_BASE_URL from '../config';
+import { useColors } from '../context/useColors';
 
-const challengesData = {
-  quiz: quizData,
-  code: codeData,
-  log: logData
+// Import our new Lottie animations
+import happyRobotAnim from '../assets/happy-robot.json';
+import confettiAnim from '../assets/confetti.json';
+
+const CHALLENGE_META = {
+  'Threat Quiz':    { icon: Eye,    color: '#06b6d4', desc: 'Multiple-choice phishing and threat identification questions.' },
+  'Code Auditor':   { icon: Code2,  color: '#a855f7', desc: 'Find the security flaw in vulnerable code snippets.' },
+  'Log Detective':  { icon: Search, color: '#10b981', desc: 'Scan network logs to pinpoint malicious IP behaviour.' },
 };
 
+const QUESTIONS_PER_LEVEL = 5; 
+
 const Challenges = () => {
-  const [activeGame, setActiveGame] = useState(null);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [score, setScore] = useState(0);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const c = useColors();
+  
+  // Arena State
+  const [activeChallenge, setActiveChallenge] = useState(null);
+  const [challenges, setChallenges] = useState([]);
+  
+  // Level Progression State
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [questionsAnsweredInLevel, setQuestionsAnsweredInLevel] = useState(0);
+  const [levelCompleted, setLevelCompleted] = useState(false);
+  
+  // Question State
+  const [currentQ, setCurrentQ] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [sessionScore, setSessionScore] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [answered, setAnswered] = useState(false);
+  const [selectedIdx, setSelectedIdx] = useState(null);
 
-  // 1. FETCH INITIAL GLOBAL XP
   useEffect(() => {
-    const fetchUserProgress = async () => {
-      const savedUser = localStorage.getItem('cyberquest_user');
-      if (!savedUser) return;
-      const { email } = JSON.parse(savedUser);
-
-      try {
-        const response = await fetch(`http://localhost:5000/api/user/stats/${email}`);
-        if (response.ok) {
-          const data = await response.json();
-          setScore(data.total_xp || 0);
-        }
-      } catch (err) {
-        console.error("Initial XP fetch failed:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUserProgress();
+    fetch(`${API_BASE_URL}/api/challenges/list`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setChallenges(Array.isArray(data) ? data : []))
+      .catch(() => setChallenges([]));
   }, []);
 
-  const resetGame = () => {
-    setActiveGame(null);
-    setCurrentStep(0);
-    setSelectedOption(null);
-    setIsAnswered(false);
+  const fetchQuestion = async (type, levelArg = currentLevel, indexArg = questionsAnsweredInLevel) => {
+    setIsLoading(true); setFeedback(null); setAnswered(false); setSelectedIdx(null);
+    try {
+      const token = localStorage.getItem('cyberquest_token');
+      const res = await fetch(`${API_BASE_URL}/api/challenges/question`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ type, level: levelArg, index: indexArg })
+      });
+      const data = await res.json();
+      setCurrentQ(data);
+    } catch { setCurrentQ(null); }
+    finally { setIsLoading(false); }
   };
 
-  // 2. SYNC XP UPDATES TO BACKEND
-  const handleSelect = async (index, correctAnswer, points = 100) => {
-    if (isAnswered) return;
-    setSelectedOption(index);
-    setIsAnswered(true);
-
-    const xpGain = points || 100;
-
-    if (index === correctAnswer) {
-      setScore(prev => prev + xpGain);
-
-      const savedUser = JSON.parse(localStorage.getItem('cyberquest_user'));
-      if (savedUser) {
-        try {
-          await fetch('http://localhost:5000/api/user/update-xp', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: savedUser.email,
-              xpGain: xpGain,
-              wasCorrect: true,
-              isPhishing: false,
-              isChallenge: true 
-            })
-          });
-        } catch (err) {
-          console.error("Arena DB Sync failed:", err);
-        }
-      }
-    }
+  const startChallenge = (type) => {
+    setActiveChallenge(type); 
+    setSessionScore(0); 
+    setCurrentLevel(1);
+    setQuestionsAnsweredInLevel(0);
+    setLevelCompleted(false);
+    fetchQuestion(type, 1, 0);
   };
 
-  const nextQuestion = (gameType) => {
-    if (currentStep < challengesData[gameType].length - 1) {
-      setCurrentStep(currentStep + 1);
-      setSelectedOption(null);
-      setIsAnswered(false);
+  const submitAnswer = async (selected) => {
+    if (answered) return;
+    setAnswered(true); setSelectedIdx(selected);
+    const token = localStorage.getItem('cyberquest_token');
+    const savedUser = JSON.parse(localStorage.getItem('cyberquest_user'));
+    const selectedText = currentQ?.options?.[selected];
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/challenges/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ type: activeChallenge, level: currentLevel, index: questionsAnsweredInLevel, selectedAnswer: selectedText, userEmail: savedUser?.email })
+      });
+      const data = await res.json();
+      setFeedback(data);
+      if (data.correct) setSessionScore(s => s + (data.xpEarned || 100));
+    } catch { setFeedback({ correct: false, explanation: 'Could not reach server.' }); }
+  };
+
+  const nextQuestionOrLevel = () => {
+    const nextQCount = questionsAnsweredInLevel + 1;
+    if (nextQCount >= QUESTIONS_PER_LEVEL) {
+      setLevelCompleted(true);
     } else {
-      resetGame();
+      setQuestionsAnsweredInLevel(nextQCount);
+      fetchQuestion(activeChallenge, currentLevel, nextQCount);
     }
   };
 
-  if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-gray-900 text-blue-400 font-mono">
-      <Terminal className="animate-pulse mr-2" /> INITIALIZING DEFENSE PROTOCOLS...
-    </div>
-  );
-
-  // --- REUSABLE RENDERERS ---
-  const renderHeader = (title, colorClass) => (
-    <div className="flex justify-between items-center mb-6">
-      <button onClick={resetGame} className="flex items-center gap-2 text-gray-500 hover:text-gray-800 font-bold transition-colors">
-        <ArrowLeft size={20} /> Back to Hub
-      </button>
-      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-bold ${colorClass}`}>
-        <Zap size={20} /> {score} Total XP
-      </div>
-    </div>
-  );
-
-  const renderFeedback = (challenge, gameType) => {
-    const isCorrect = selectedOption === (challenge.correctAnswer ?? challenge.maliciousIndex);
-    
-    return isAnswered && (
-      <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className={`p-6 rounded-2xl mb-6 flex flex-col md:flex-row items-center md:items-start gap-6 ${isCorrect ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
-          
-          {/* 🎬 LOTTIE ANIMATION DROP ZONE */}
-          <div className="w-32 h-32 shrink-0 bg-white rounded-full shadow-inner flex items-center justify-center border-2 border-dashed border-gray-400">
-            <p className="text-xs text-center text-gray-500 font-bold p-2 uppercase">
-              {isCorrect ? "FRIENDS: PUT HAPPY LOTTIE HERE" : "FRIENDS: PUT SAD LOTTIE HERE"}
-            </p>
-            {/* INSTRUCTIONS FOR FRIENDS: 
-                Replace the <p> tag above with your Lottie component:
-                <Lottie animationData={isCorrect ? happyAnimation : sadAnimation} loop={!isCorrect} /> 
-            */}
-          </div>
-
-          <div className="flex-1 text-center md:text-left pt-2">
-            <h3 className="font-bold text-2xl mb-2 flex items-center justify-center md:justify-start gap-2">
-              {isCorrect ? <CheckCircle size={28} /> : <AlertTriangle size={28} />}
-              {isCorrect ? "Threat Neutralized! 🎯" : "Breach Detected! 🚨"}
-            </h3>
-            <p className="opacity-90 text-lg leading-relaxed">{challenge.explanation}</p>
-          </div>
-        </div>
-        <button onClick={() => nextQuestion(gameType)} className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl hover:bg-black transition-all shadow-lg active:scale-95">
-          {currentStep < challengesData[gameType].length - 1 ? "Next Challenge" : "Finish Training"}
-        </button>
-      </div>
-    );
+  const startNextLevel = () => {
+    setCurrentLevel(l => l + 1);
+    setQuestionsAnsweredInLevel(0);
+    setLevelCompleted(false);
+    fetchQuestion(activeChallenge, currentLevel + 1, 0);
   };
 
-  // --- 1. HUB MENU ---
-  if (!activeGame) {
-    return (
-      <div className="p-8 h-screen overflow-y-auto bg-gray-50">
-        <div className="mb-10 flex justify-between items-end">
+  const TYPES = ['Threat Quiz', 'Code Auditor', 'Log Detective'];
+  const cardStyle = { background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:24, transition:'all 0.25s', boxShadow: c.isDark?'none':'0 2px 12px rgba(0,0,0,0.06)' };
+
+  return (
+    <div style={{ minHeight:'100%', background: c.bgPage, padding:'28px 32px', fontFamily:'inherit', transition:'background 0.25s' }}>
+      <div style={{ maxWidth:1100, margin:'0 auto' }}>
+
+        {/* Header */}
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:28, flexWrap:'wrap', gap:16 }}>
           <div>
-            <h1 className="text-4xl font-black text-blue-600 tracking-tight mb-2">Training Arena</h1>
-            <p className="text-gray-500 font-medium text-lg">Hone your security instincts.</p>
-          </div>
-          <div className="bg-yellow-100 px-6 py-3 rounded-2xl border border-yellow-200 flex items-center gap-3 shadow-sm">
-            <Trophy size={24} className="text-yellow-600" />
-            <span className="text-xl font-black text-yellow-700">{score} XP</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl">
-          <button onClick={() => setActiveGame('quiz')} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 hover:border-blue-500 hover:shadow-xl transition-all group text-left">
-            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><BrainCircuit size={32} className="text-blue-600" /></div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">Threat Quiz</h2>
-            <p className="text-gray-500 mb-6">Master core security concepts.</p>
-            <div className="w-full bg-blue-50 text-blue-700 font-bold py-3 rounded-xl text-center group-hover:bg-blue-600 group-hover:text-white transition-colors">Start</div>
-          </button>
-
-          <button onClick={() => setActiveGame('code')} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 hover:border-purple-500 hover:shadow-xl transition-all group text-left">
-            <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><Code size={32} className="text-purple-600" /></div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">Code Auditor</h2>
-            <p className="text-gray-500 mb-6">Find flaws in vulnerable logic.</p>
-            <div className="w-full bg-purple-50 text-purple-700 font-bold py-3 rounded-xl text-center group-hover:bg-purple-600 group-hover:text-white transition-colors">Start</div>
-          </button>
-
-          <button onClick={() => setActiveGame('log')} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 hover:border-green-500 hover:shadow-xl transition-all group text-left">
-            <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><Terminal size={32} className="text-green-600" /></div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">Log Detective</h2>
-            <p className="text-gray-500 mb-6">Analyze traffic for malicious IPs.</p>
-            <div className="w-full bg-green-50 text-green-700 font-bold py-3 rounded-xl text-center group-hover:bg-green-600 group-hover:text-white transition-colors">Start</div>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // --- 2. QUIZ VIEW ---
-  if (activeGame === 'quiz') {
-    const challenge = challengesData.quiz[currentStep];
-    return (
-      <div className="p-8 h-screen overflow-y-auto bg-gray-50">
-        {renderHeader("Threat Quiz", "bg-blue-50 text-blue-700 border-blue-200")}
-        <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-blue-600 p-8 text-white">
-            <h2 className="text-xl font-bold mb-2 opacity-80">{challenge.title}</h2>
-            <p className="text-2xl font-semibold leading-snug">{challenge.question}</p>
-          </div>
-          <div className="p-8 space-y-4">
-            {challenge.options.map((option, index) => {
-              let btnStyle = "bg-gray-50 border-gray-200 text-gray-700 hover:bg-blue-50";
-              if (isAnswered) {
-                if (index === challenge.correctAnswer) btnStyle = "bg-green-50 border-green-500 text-green-800";
-                else if (index === selectedOption) btnStyle = "bg-red-50 border-red-500 text-red-800";
-              }
-              return (
-                <button 
-                  key={index} 
-                  onClick={() => handleSelect(index, challenge.correctAnswer, challenge.points)} 
-                  disabled={isAnswered} 
-                  className={`w-full text-left p-5 rounded-2xl border-2 font-medium text-lg transition-all ${btnStyle}`}
-                >
-                  {option}
-                </button>
-              );
-            })}
-            {renderFeedback(challenge, 'quiz')}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // --- 3. CODE VIEW ---
-  if (activeGame === 'code') {
-    const challenge = challengesData.code[currentStep];
-    return (
-      <div className="p-8 h-screen overflow-y-auto bg-gray-50">
-        {renderHeader("Code Auditor", "bg-purple-50 text-purple-700 border-purple-200")}
-        <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-gray-900 p-8 text-white">
-            <div className="flex items-center gap-2 mb-4 text-purple-400 font-mono text-sm"><Code size={16} /> secure_module.js</div>
-            <pre className="font-mono text-sm sm:text-base text-gray-300 bg-black p-6 rounded-xl overflow-x-auto border border-gray-700 shadow-inner mb-6">
-              <code>{challenge.codeSnippet}</code>
-            </pre>
-            <p className="text-xl font-semibold">{challenge.question}</p>
-          </div>
-          <div className="p-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {challenge.options.map((option, index) => {
-              let btnStyle = "bg-gray-50 border-gray-200 text-gray-700 hover:bg-purple-50";
-              if (isAnswered) {
-                if (index === challenge.correctAnswer) btnStyle = "bg-green-50 border-green-500 text-green-800";
-                else if (index === selectedOption) btnStyle = "bg-red-50 border-red-500 text-red-800";
-              }
-              return (
-                <button 
-                  key={index} 
-                  onClick={() => handleSelect(index, challenge.correctAnswer, challenge.points)} 
-                  disabled={isAnswered} 
-                  className={`text-left p-4 rounded-xl border-2 font-medium transition-all ${btnStyle}`}
-                >
-                  {option}
-                </button>
-              );
-            })}
-          </div>
-          <div className="px-8 pb-8">{renderFeedback(challenge, 'code')}</div>
-        </div>
-      </div>
-    );
-  }
-
-  // --- 4. LOG VIEW ---
-  if (activeGame === 'log') {
-    const challenge = challengesData.log[currentStep];
-    return (
-      <div className="p-8 h-screen overflow-y-auto bg-gray-50">
-        {renderHeader("Log Detective", "bg-green-50 text-green-700 border-green-200")}
-        <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-gray-900 p-8 text-white">
-            <h2 className="text-2xl font-bold text-green-400 mb-2 flex items-center gap-2"><Terminal size={24} /> {challenge.title}</h2>
-            <p className="text-gray-400">{challenge.instruction}</p>
-          </div>
-          <div className="p-6 bg-black text-green-500 font-mono text-sm sm:text-base overflow-x-auto">
-            <div className="min-w-[600px]">
-              <div className="grid grid-cols-12 gap-4 pb-2 border-b border-gray-800 text-gray-500 mb-2 px-4 uppercase text-xs tracking-widest">
-                <div className="col-span-2">Time</div><div className="col-span-3">Source</div><div className="col-span-5">Request Path</div><div className="col-span-2 text-right">Status</div>
-              </div>
-              {challenge.logs.map((log, index) => {
-                let rowStyle = "hover:bg-gray-800 cursor-pointer text-gray-300";
-                if (isAnswered) {
-                  if (index === challenge.maliciousIndex) rowStyle = "bg-green-900/50 text-green-400 border border-green-500/50";
-                  else if (index === selectedOption) rowStyle = "bg-red-900/50 text-red-400 border border-red-500/50";
-                  else rowStyle = "opacity-30 text-gray-600";
-                }
-                return (
-                  <button 
-                    key={index} 
-                    onClick={() => handleSelect(index, challenge.maliciousIndex, challenge.points)} 
-                    disabled={isAnswered} 
-                    className={`w-full text-left grid grid-cols-12 gap-4 py-3 px-4 rounded transition-colors mb-1 ${rowStyle}`}
-                  >
-                    <div className="col-span-2">{log.time}</div><div className="col-span-3">{log.ip}</div><div className="col-span-5 truncate">{log.req}</div><div className="col-span-2 text-right font-bold">{log.status}</div>
-                  </button>
-                );
-              })}
+            <div style={{ display:'flex', alignItems:'center', gap:6, color: c.cyan, marginBottom:6 }}>
+              <Trophy size={14} /><span style={{ fontSize:10, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.25em' }}>Training Arena</span>
             </div>
+            <h1 style={{ fontSize:'clamp(1.6rem,3vw,2.5rem)', fontWeight:900, textTransform:'uppercase', letterSpacing:'-0.02em', color: c.textPrimary, margin:0 }}>Challenges</h1>
           </div>
-          <div className="px-8 pb-8 pt-4">{renderFeedback(challenge, 'log')}</div>
+          {activeChallenge && (
+            <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+              <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:14, padding:'10px 20px', display:'flex', alignItems:'center', gap:8 }}>
+                <Zap size={16} color={c.yellow} />
+                <span style={{ color: c.textPrimary, fontWeight:900, fontSize:15 }}>{sessionScore} XP</span>
+              </div>
+              <button onClick={() => { setActiveChallenge(null); setCurrentQ(null); setFeedback(null); setAnswered(false); setLevelCompleted(false); }}
+                style={{ padding:'10px 18px', borderRadius:12, border:`1px solid ${c.border}`, background: c.bgCard, color: c.textSecondary, fontWeight:700, fontSize:12, cursor:'pointer' }}>
+                ← Exit
+              </button>
+            </div>
+          )}
         </div>
-      </div>
-    );
-  }
 
-  return null;
+        {/* Challenge card grid */}
+        {!activeChallenge && (
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:20 }}>
+            {TYPES.map(type => {
+              const meta = CHALLENGE_META[type];
+              return (
+                <div key={type} style={{ ...cardStyle, padding:'28px', cursor:'pointer', display:'flex', flexDirection:'column' }}
+                  onMouseEnter={e => { e.currentTarget.style.border=`1px solid ${meta.color}50`; e.currentTarget.style.background=`${meta.color}06`; e.currentTarget.style.transform='translateY(-3px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.border=`1px solid ${c.border}`; e.currentTarget.style.background=c.bgCard; e.currentTarget.style.transform='translateY(0)'; }}>
+                  <div style={{ width:52, height:52, borderRadius:16, background:`${meta.color}15`, border:`1px solid ${meta.color}30`, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:20 }}>
+                    <meta.icon size={26} color={meta.color} />
+                  </div>
+                  <h3 style={{ fontSize:18, fontWeight:900, color: c.textPrimary, margin:'0 0 8px' }}>{type}</h3>
+                  <p style={{ fontSize:13, color: c.textSecondary, lineHeight:1.6, margin:'0 0 20px', flex:1 }}>{meta.desc}</p>
+                  <button onClick={() => startChallenge(type)}
+                    style={{ width:'100%', padding:'12px', borderRadius:14, border:`1px solid ${meta.color}50`, background:`${meta.color}12`, color: meta.color, fontWeight:900, fontSize:12, textTransform:'uppercase', letterSpacing:'0.12em', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, transition:'all 0.2s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background=meta.color; e.currentTarget.style.color='#000'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background=`${meta.color}12`; e.currentTarget.style.color=meta.color; }}>
+                    Initiate <ChevronRight size={15} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Active challenge */}
+        {activeChallenge && (
+          <div style={{ ...cardStyle, position: 'relative', overflow: 'hidden' }}>
+            
+            {levelCompleted ? (
+              /* --- LEVEL COMPLETE SCREEN --- */
+              <div style={{ padding: '64px 32px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+                  <Lottie animationData={confettiAnim} loop={false} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ width: 160, height: 160, margin: '0 auto 16px' }}>
+                    <Lottie animationData={happyRobotAnim} loop={true} />
+                  </div>
+                  
+                  <h2 style={{ color: CHALLENGE_META[activeChallenge].color, fontWeight: 900, fontSize: 32, marginBottom: 8 }}>
+                    LEVEL {currentLevel} CLEARED!
+                  </h2>
+                  <p style={{ color: c.textSecondary, fontSize: 16, marginBottom: 32 }}>
+                    Perfect run. You earned <span style={{ color: c.yellow, fontWeight: 900 }}>{sessionScore} XP</span> total so far.
+                  </p>
+                  
+                  <button onClick={startNextLevel}
+                    style={{ padding:'16px 40px', borderRadius:16, border:'none', background:`linear-gradient(135deg,${c.indigo},${c.cyan})`, color:'white', fontWeight:900, fontSize:15, cursor:'pointer', boxShadow:'0 10px 30px rgba(99,102,241,0.4)', transition:'transform 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.transform='scale(1.05)'}
+                    onMouseLeave={e => e.currentTarget.style.transform='scale(1)'}>
+                    Start Level {currentLevel + 1}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* --- QUESTION SCREEN --- */
+              <>
+                {/* Progress bar */}
+                <div style={{ height:3, background: c.bgElevated }}>
+                  <div style={{ height:'100%', width:`${((questionsAnsweredInLevel) / QUESTIONS_PER_LEVEL) * 100}%`, background:`linear-gradient(90deg,${CHALLENGE_META[activeChallenge].color},${c.indigo})`, transition:'width 0.5s' }} />
+                </div>
+
+                <div style={{ padding:'28px 32px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span style={{ padding: '4px 10px', borderRadius: 8, background: `${CHALLENGE_META[activeChallenge].color}20`, color: CHALLENGE_META[activeChallenge].color, fontSize: 11, fontWeight: 900, letterSpacing: '0.1em' }}>
+                        LEVEL {currentLevel}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: c.textMuted }}>
+                      {questionsAnsweredInLevel} / {QUESTIONS_PER_LEVEL} Complete
+                    </span>
+                  </div>
+
+                  {isLoading ? (
+                    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'60px 0' }}>
+                      <Loader2 size={36} color={c.cyan} style={{ animation:'spin 1s linear infinite', marginBottom:14 }} />
+                      <p style={{ color: c.textSecondary, fontFamily:'monospace', fontSize:13 }}>Generating question...</p>
+                      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                    </div>
+                  ) : currentQ ? (
+                    <>
+                      {/* Question */}
+                      <div style={{ background: c.bgElevated, border:`1px solid ${c.border}`, borderRadius:18, padding:'20px 24px', marginBottom:24 }}>
+                        {activeChallenge === 'Code Auditor' ? (
+                          <pre style={{ fontFamily:'monospace', fontSize:13, color: c.textPrimary, whiteSpace:'pre-wrap', wordBreak:'break-word', lineHeight:1.65, margin:0 }}>{currentQ.question}</pre>
+                        ) : (
+                          <p style={{ color: c.textPrimary, fontSize:15, lineHeight:1.65, margin:0, fontWeight:600 }}>{currentQ.question}</p>
+                        )}
+                      </div>
+
+                      {/* Options */}
+                      <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:20 }}>
+                        {(currentQ.options || []).map((opt, i) => {
+                          const isSelected = selectedIdx === i;
+                          const isCorrect = answered && feedback?.correctAnswer === opt;
+                          const isWrong = answered && isSelected && !isCorrect;
+                          return (
+                            <button key={i} onClick={() => !answered && submitAnswer(i)}
+                              style={{ padding:'13px 20px', borderRadius:14, border:`1px solid ${isCorrect ? '#10b981' : isWrong ? '#ef4444' : isSelected ? c.indigo : c.border}`, background: isCorrect ? 'rgba(16,185,129,0.12)' : isWrong ? 'rgba(239,68,68,0.12)' : isSelected ? `${c.indigo}12` : c.bgElevated, color: isCorrect ? '#10b981' : isWrong ? '#ef4444' : c.textPrimary, fontWeight:600, fontSize:14, cursor:answered?'default':'pointer', textAlign:'left', display:'flex', alignItems:'center', justifyContent:'space-between', transition:'all 0.15s' }}>
+                              <span>{opt}</span>
+                              {isCorrect && <CheckCircle2 size={18} color="#10b981" />}
+                              {isWrong && <AlertTriangle size={18} color="#ef4444" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Feedback */}
+                      {feedback && (
+                        <div style={{ background: feedback.correct ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border:`1px solid ${feedback.correct?'rgba(16,185,129,0.35)':'rgba(239,68,68,0.35)'}`, borderRadius:16, padding:'16px 20px', marginBottom:20, display:'flex', alignItems:'flex-start', gap:12 }}>
+                          {feedback.correct ? <CheckCircle2 size={18} color="#10b981" style={{ flexShrink:0, marginTop:2 }} /> : <AlertTriangle size={18} color="#ef4444" style={{ flexShrink:0, marginTop:2 }} />}
+                          <div>
+                            <p style={{ fontWeight:900, fontSize:14, color: feedback.correct ? '#10b981' : '#ef4444', margin:'0 0 4px' }}>
+                              {feedback.correct ? `✔ Correct! +${feedback.xpEarned || 100} XP` : '✘ Incorrect'}
+                            </p>
+                            <p style={{ color: c.textSecondary, fontSize:13, lineHeight:1.6, margin:0 }}>{feedback.explanation}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Next button (Question OR Level) */}
+                      {answered && (
+                        <button onClick={nextQuestionOrLevel}
+                          style={{ padding:'12px 28px', borderRadius:14, border:'none', background:`linear-gradient(135deg,${c.indigo},${c.cyan})`, color:'white', fontWeight:900, fontSize:13, cursor:'pointer', display:'flex', alignItems:'center', gap:8, boxShadow:'0 0 20px rgba(99,102,241,0.3)' }}>
+                          {questionsAnsweredInLevel + 1 >= QUESTIONS_PER_LEVEL ? 'Complete Level' : 'Next Question'} <ChevronRight size={16} />
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <p style={{ color: c.textMuted, textAlign:'center', padding:'40px 0' }}>Could not load question. Check backend.</p>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Challenges;

@@ -1,111 +1,129 @@
 import React, { useState } from 'react';
-import { Search, ShieldCheck, AlertTriangle, ShieldAlert } from 'lucide-react';
+import { Search, ShieldCheck, AlertTriangle, Terminal, Zap } from 'lucide-react';
+import Lottie from 'lottie-react';
+import sadBotAnim from '../assets/sadbot.json';
+import API_BASE_URL from '../config';
+import { useColors } from '../context/useColors';
 
 const VaultIdScanner = () => {
+  const c = useColors();
   const [targetEmail, setTargetEmail] = useState('');
   const [scanResult, setScanResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
 
-  const handleManualScan = async () => {
-    if (!targetEmail) return;
-    setIsScanning(true);
-    setScanResult(null);
-
+  const handleScan = async (e) => {
+    e.preventDefault();
+    if (!targetEmail.trim()) return;
+    setIsScanning(true); setScanResult(null);
     try {
-      const response = await fetch('http://localhost:5000/api/vaultid/scan', {
+      const response = await fetch(`${API_BASE_URL}/api/vaultid/scan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ senderEmail: targetEmail })
       });
       const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Scan failed.');
       setScanResult(data);
-    } catch (error) {
-      console.error("Scanner Error:", error);
-      setScanResult({ error: "Connection to CyberQuest Backend failed." });
-    }
-    setIsScanning(false);
+    } catch (err) {
+      setScanResult({ error: err.message.includes('fetch') ? `Cannot reach backend at ${API_BASE_URL}. Start with: npm start` : err.message });
+    } finally { setIsScanning(false); }
   };
 
+  const isSafe = scanResult && !scanResult.error && scanResult.trustScore >= 50;
+  const isThreat = scanResult && !scanResult.error && scanResult.trustScore < 50;
+
   return (
-    <div className="h-screen flex flex-col bg-gray-100 p-6 ml-0 transition-all duration-300">
-      
-      {/* Header */}
-      <div className="mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between max-w-4xl mx-auto w-full">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
-            <Search size={24} />
+    <div style={{ minHeight:'100%', background: c.bgPage, padding:'32px 36px', fontFamily:'inherit', transition:'background 0.25s' }}>
+      <div style={{ maxWidth: 780, margin: '0 auto' }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: 36 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, color: c.cyan, marginBottom: 8 }}>
+            <Terminal size={14} />
+            <span style={{ fontSize:11, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.25em' }}>Threat Intelligence</span>
           </div>
-          <div>
-            <h1 className="text-2xl font-black text-emerald-600 tracking-tight">VaultID Intel Scanner</h1>
-            <p className="text-sm text-gray-500 font-medium">Manual target analysis and telemetry.</p>
-          </div>
+          <h1 style={{ fontSize:'clamp(1.8rem,4vw,2.8rem)', fontWeight:900, textTransform:'uppercase', letterSpacing:'-0.02em', color: c.textPrimary, margin:'0 0 6px' }}>VaultID Scanner</h1>
+          <p style={{ color: c.textSecondary, margin:0 }}>AI-powered email reputation analysis. Know who is behind every message.</p>
         </div>
-      </div>
 
-      {/* Main Scanner Card */}
-      <div className="flex-1 max-w-4xl mx-auto w-full">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
-          
-          <div className="p-8 bg-white">
-            <p className="text-gray-600 mb-6 text-base leading-relaxed">
-              Initiate a manual scan of a target email address. The Gemini network will analyze domain reputation, verify MX records, and check for typosquatting vectors.
-            </p>
-
-            {/* Search Input */}
-            <div className="flex flex-col md:flex-row gap-4 mb-8">
-              <input 
-                type="email" 
-                placeholder="Enter Target: e.g., admin@paypa1-support.com" 
-                value={targetEmail}
-                onChange={(e) => setTargetEmail(e.target.value)}
-                className="flex-1 bg-gray-50 border border-gray-300 rounded-xl px-6 py-4 text-gray-800 text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-inner"
-              />
-              <button 
-                onClick={handleManualScan}
-                disabled={isScanning || !targetEmail}
-                className={`px-8 py-4 rounded-xl text-white font-bold text-lg transition-colors shadow-md flex items-center justify-center gap-2 ${isScanning ? 'bg-amber-500' : 'bg-emerald-500 hover:bg-emerald-600'} disabled:opacity-50 min-w-[200px]`}
-              >
-                {isScanning ? '⏳ Scanning...' : 'Execute Scan'}
-              </button>
+        {/* Scan form */}
+        <form onSubmit={handleScan} style={{ marginBottom: 28 }}>
+          <div style={{ display:'flex', gap:12 }}>
+            <div style={{ flex:1, position:'relative' }}>
+              <div style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', color: c.textMuted }}><Search size={17} /></div>
+              <input type="email" value={targetEmail} onChange={e => setTargetEmail(e.target.value)}
+                placeholder="Enter sender email to analyse..."
+                style={{ width:'100%', background: c.bgInput, border:`1px solid ${c.border}`, color: c.textPrimary, borderRadius:14, padding:'14px 16px 14px 44px', fontSize:14, outline:'none', fontFamily:'inherit', boxSizing:'border-box', transition:'border 0.2s' }}
+                onFocus={e => e.target.style.borderColor=c.cyan} onBlur={e => e.target.style.borderColor=c.border} />
             </div>
-
-            {/* Dynamic Results Area */}
-            {scanResult && !scanResult.error && (
-              <div className={`p-8 rounded-xl border-l-4 shadow-sm animate-fade-in ${scanResult.trustScore > 70 ? 'bg-emerald-50 border-emerald-500' : 'bg-red-50 border-red-500'}`}>
-                <h4 className={`text-xl font-bold flex items-center gap-3 mb-6 ${scanResult.trustScore > 70 ? 'text-emerald-700' : 'text-red-700'}`}>
-                  {scanResult.trustScore > 70 ? <ShieldCheck size={28} /> : <AlertTriangle size={28} />}
-                  {scanResult.trustScore > 70 ? 'THREAT LEVEL ZERO' : 'CRITICAL RISK DETECTED'}
-                </h4>
-                
-                <div className="bg-white p-6 rounded-xl mb-6 border border-gray-200 shadow-sm flex items-center justify-between">
-                  <div>
-                    <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Trust Score</span>
-                    <div className={`text-5xl font-black mt-2 ${scanResult.trustScore > 70 ? 'text-emerald-600' : 'text-red-600'}`}>
-                      {scanResult.trustScore} <span className="text-2xl text-gray-400 font-medium">/ 100</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">AI Forensics Report</span>
-                  <p className="mt-3 text-gray-700 bg-white p-6 rounded-xl border border-gray-200 shadow-sm leading-relaxed text-base">
-                    {scanResult.analysis}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {scanResult && scanResult.error && (
-              <div className="p-6 bg-red-100 border border-red-300 text-red-700 rounded-xl flex items-center gap-3 font-medium text-base animate-fade-in">
-                <AlertTriangle size={24} />
-                {scanResult.error}
-              </div>
-            )}
-            
+            <button type="submit" disabled={isScanning || !targetEmail.trim()}
+              style={{ padding:'14px 28px', borderRadius:14, border:'none', background:`linear-gradient(135deg,${c.indigo},${c.cyan})`, color:'white', fontWeight:900, fontSize:13, textTransform:'uppercase', letterSpacing:'0.1em', cursor:isScanning||!targetEmail.trim()?'not-allowed':'pointer', opacity:isScanning||!targetEmail.trim()?0.6:1, display:'flex', alignItems:'center', gap:8, flexShrink:0, boxShadow:'0 0 20px rgba(99,102,241,0.3)', transition:'all 0.2s' }}>
+              <Zap size={16} /> {isScanning ? 'Scanning...' : 'Scan'}
+            </button>
           </div>
-        </div>
+        </form>
+
+        {/* Scanning animation */}
+        {isScanning && (
+          <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:20, padding:40, textAlign:'center' }}>
+            <div style={{ width:60, height:60, borderRadius:'50%', border:`3px solid ${c.cyan}`, borderTopColor:'transparent', margin:'0 auto 20px', animation:'spin 0.8s linear infinite' }} />
+            <p style={{ color: c.textSecondary, fontFamily:'monospace', fontSize:14 }}>Analysing email reputation...</p>
+          </div>
+        )}
+
+        {/* Result */}
+        {scanResult && !isScanning && (
+          scanResult.error ? (
+            <div style={{ background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:20, padding:28, display:'flex', alignItems:'flex-start', gap:14 }}>
+              <AlertTriangle size={22} color="#ef4444" style={{ flexShrink:0, marginTop:2 }} />
+              <div>
+                <p style={{ color:'#ef4444', fontWeight:900, fontSize:14, margin:'0 0 4px' }}>Scan Failed</p>
+                <p style={{ color:'#f87171', fontSize:13, margin:0 }}>{scanResult.error}</p>
+              </div>
+            </div>
+          ) : (
+            <div style={{ background: c.bgCard, border:`1px solid ${isThreat ? 'rgba(239,68,68,0.4)' : 'rgba(16,185,129,0.4)'}`, borderRadius:20, overflow:'hidden', boxShadow: c.isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)' }}>
+              {/* Result header */}
+              <div style={{ padding:'20px 28px', background: isThreat ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', display:'flex', alignItems:'center', gap:14, borderBottom:`1px solid ${c.border}` }}>
+                <div style={{ width:48, height:48, borderRadius:'50%', background: isThreat ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)', border:`2px solid ${isThreat?'#ef4444':'#10b981'}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  {isThreat ? <AlertTriangle size={24} color="#ef4444" /> : <ShieldCheck size={24} color="#10b981" />}
+                </div>
+                <div>
+                  <p style={{ fontSize:10, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.2em', color: c.textMuted, margin:0 }}>VaultID Verdict • Score: {scanResult.trustScore ?? 'N/A'}/100</p>
+                  <h2 style={{ fontSize:22, fontWeight:900, color: isThreat ? '#ef4444' : '#10b981', margin:0 }}>
+                    {isThreat ? '⚠ PHISHING DETECTED' : '✓ SENDER VERIFIED'}
+                  </h2>
+                </div>
+              </div>
+              {/* Analysis */}
+              <div style={{ padding:'20px 28px', display:'flex', gap:24, flexWrap:'wrap' }}>
+                <div style={{ flex:1, minWidth:250 }}>
+                  <p style={{ fontSize:10, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.2em', color: c.textMuted, marginBottom:8 }}>AI Analysis</p>
+                  <p style={{ color: c.textPrimary, fontSize:14, lineHeight:1.7, margin:0 }}>{scanResult.analysis}</p>
+                </div>
+                
+                {/* Lottie Error Animation Integration */}
+                {isThreat && (
+                  <div style={{ width:120, height:120, flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', opacity:0.9 }}>
+                    <Lottie animationData={sadBotAnim} loop={true} />
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        )}
+
+        {/* Placeholder */}
+        {!scanResult && !isScanning && (
+          <div style={{ background: c.bgCard, border:`2px dashed ${c.border}`, borderRadius:20, padding:'48px 32px', textAlign:'center' }}>
+            <Search size={36} color={c.textMuted} style={{ marginBottom:14 }} />
+            <p style={{ color: c.textSecondary, fontSize:14, margin:'0 0 6px', fontWeight:600 }}>Enter a sender email above to analyse it</p>
+            <p style={{ color: c.textMuted, fontSize:12, margin:0 }}>The AI will check reputation, sender patterns, and phishing indicators.</p>
+          </div>
+        )}
       </div>
-      
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };

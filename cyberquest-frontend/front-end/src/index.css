@@ -1,5 +1,93 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─── ANIMATED GRADIENT BACKGROUND ────────────────────────────────── */
+@keyframes gradientFlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+#gradient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-size: 400% 400%;
+  animation: gradientFlow 14s ease infinite;
+}
+
+html:not(.light) #gradient-bg {
+  background: linear-gradient(135deg, #030508 0%, #050d1f 25%, #060b1a 50%, #0a0520 75%, #030508 100%);
+}
+
+html.light #gradient-bg {
+  background: linear-gradient(135deg, #dde9ff 0%, #ede5ff 25%, #ddf0ff 50%, #ffe5f5 75%, #dde9ff 100%);
+}
+
+/* ─── GRID OVERLAY ─────────────────────────────────────────────────── */
+#grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+html:not(.light) #grid-overlay {
+  background-image: linear-gradient(to right,#ffffff04 1px,transparent 1px), linear-gradient(to bottom,#ffffff04 1px,transparent 1px);
+  background-size: 40px 40px;
+}
+
+html.light #grid-overlay {
+  background-image: linear-gradient(to right,#0000000a 1px,transparent 1px), linear-gradient(to bottom,#0000000a 1px,transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── THEME TOGGLE SWITCH ──────────────────────────────────────────── */
+.theme-toggle {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.theme-toggle input {
+  opacity: 0; width: 0; height: 0; position: absolute;
+}
+
+.theme-toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+  background: linear-gradient(90deg, #1e40af, #4f46e5);
+  box-shadow: 0 0 12px rgba(99,102,241,0.4);
+}
+
+html.light .theme-toggle-track {
+  background: linear-gradient(90deg, #f97316, #f59e0b);
+  box-shadow: 0 0 12px rgba(251,191,36,0.5);
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; line-height: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+html:not(.light) .theme-toggle-thumb { transform: translateX(0px);  }
+html.light       .theme-toggle-thumb { transform: translateX(24px); }
+
+/* ─── LOADING ANIMATIONS ───────────────────────────────────────────── */
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-4px); }
+}

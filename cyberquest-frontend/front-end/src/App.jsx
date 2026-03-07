@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { UserCircle2 } from 'lucide-react';
 
-// --- NEW PAGES ---
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { useColors } from './context/useColors';
+
 import Home from './pages/Home';
 import Auth from './components/Auth';
-
-// --- YOUR EXISTING COMPONENTS ---
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Simulator from './pages/Simulator';
@@ -15,88 +16,135 @@ import Challenges from './pages/Challenges';
 import Profile from './pages/Profile';
 import VaultIdScanner from './pages/VaultIdScan';
 
-function App() {
-  // ==========================================
-  // 🔥 HACKATHON BYPASS MODE ACTIVATED 🔥
-  // Tell your friends they don't need the database. 
-  // Remember to change this back to localStorage before your final submission!
-  // ==========================================
-  const [user, setUser] = useState({ 
-    username: "Animation_Team", 
-    total_xp: 5000 
-  });
-
-  // 2. Create a "Security Wrapper" for your old layout
-  // This layout includes your Sidebar, but only loads if they are logged in!
-  const ProtectedLayout = ({ children }) => {
-    if (!user) {
-      return <Navigate to="/auth" />;
+const getValidUser = () => {
+  const token = localStorage.getItem('cyberquest_token');
+  const savedUser = localStorage.getItem('cyberquest_user');
+  if (!token || !savedUser) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.exp * 1000 < Date.now()) {
+      localStorage.removeItem('cyberquest_token');
+      localStorage.removeItem('cyberquest_user');
+      return null;
     }
+    return JSON.parse(savedUser);
+  } catch {
+    localStorage.removeItem('cyberquest_token');
+    localStorage.removeItem('cyberquest_user');
+    return null;
+  }
+};
 
-    return (
-      <div className="flex min-h-screen bg-[#f9fafb]">
-        {/* Your exact Sidebar! */}
-        <Sidebar />
-        
-        {/* We went exactly back to your original code here */}
-        <div className="flex-1 overflow-y-auto relative">
-          
-          {/* FLOATING HEADER: This hovers over the page and won't mess up your alignment! */}
-          <div className="absolute top-4 right-8 z-50 flex items-center gap-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-2xl shadow-sm border border-gray-200">
-            
-            {/* 🔥 FIX 1: Wrapped the username in a clickable Link to the profile */}
-            <Link to="/profile" className="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors cursor-pointer">
-              Operative: <span className="text-blue-600 font-bold">{user.username}</span>
-            </Link>
+// ── Toggle switch (defined outside — stable reference) ───────────────
+const ThemeToggle = () => {
+  const { isDark, toggle } = useTheme();
+  return (
+    <label className="theme-toggle" title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+      <input type="checkbox" checked={!isDark} onChange={toggle} />
+      <div className="theme-toggle-track" />
+      <div className="theme-toggle-thumb">{isDark ? '🌙' : '☀️'}</div>
+    </label>
+  );
+};
 
-            <div className="w-px h-4 bg-gray-300"></div>
-            <button
-              onClick={() => {
-                localStorage.removeItem('cyberquest_token');
-                localStorage.removeItem('cyberquest_user');
-                setUser(null);
-              }}
-              className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors"
-            >
-              LOGOUT
-            </button>
+// ── Header bar (reads theme for colors) ─────────────────────────────
+const HeaderBar = ({ user, onLogout }) => {
+  const c = useColors();
+  return (
+    <div style={{ padding: '14px 28px', display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 14,
+        padding: '8px 16px', borderRadius: 20,
+        background: c.isDark ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.85)',
+        border: `1px solid ${c.border}`,
+        backdropFilter: 'blur(12px)',
+        boxShadow: c.isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.07)',
+        transition: 'background 0.25s, border-color 0.25s',
+      }}>
+        <ThemeToggle />
+
+        <div style={{ width: 1, height: 16, background: c.border }} />
+
+        <Link to="/profile" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 34, height: 34, borderRadius: '50%', background: `${c.indigo}18`, border: `1px solid ${c.indigo}35`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: c.indigo }}>
+            <UserCircle2 size={18} />
           </div>
+          <span style={{ fontSize: 13, fontWeight: 600, color: c.textSecondary }}>
+            Operative: <strong style={{ color: c.indigo }}>{user?.username}</strong>
+          </span>
+        </Link>
 
-          {/* This renders whichever page they clicked on exactly like it used to */}
+        <div style={{ width: 1, height: 16, background: c.border }} />
+
+        <button onClick={onLogout}
+          style={{ fontSize: 11, fontWeight: 900, color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.05em' }}>
+          LOGOUT
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ── Protected layout (defined OUTSIDE AppInner — stable component reference) ──
+// Receives user + onLogout as props so it doesn't need the AppInner closure.
+const ProtectedLayout = ({ children, user, onLogout }) => {
+  if (!user) return <Navigate to="/auth" />;
+  return (
+    <div style={{ display: 'flex', height: '100vh', width: '100%', overflow: 'hidden' }}>
+      <div id="gradient-bg" />
+      <div id="grid-overlay" />
+
+      <Sidebar />
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0, position: 'relative', zIndex: 1, overflow: 'hidden' }}>
+        <HeaderBar user={user} onLogout={onLogout} />
+        <div style={{ flex: 1, overflowY: 'auto' }}>
           {children}
         </div>
       </div>
-    );
+    </div>
+  );
+};
+
+// ── Inner app (has access to ThemeContext) ───────────────────────────
+function AppInner() {
+  const [user, setUser] = useState(() => getValidUser());
+
+  const handleLogout = () => {
+    localStorage.removeItem('cyberquest_token');
+    localStorage.removeItem('cyberquest_user');
+    setUser(null);
   };
+
+  // Helper to wrap a page in ProtectedLayout with stable props
+  const wrap = (page) => (
+    <ProtectedLayout user={user} onLogout={handleLogout}>
+      {page}
+    </ProtectedLayout>
+  );
 
   return (
     <Router>
       <Routes>
-        {/* --- PUBLIC ROUTES --- */}
-        <Route path="/" element={<Home />} />
-        <Route 
-          path="/auth" 
-          element={!user ? <Auth onLoginSuccess={setUser} /> : <Navigate to="/dashboard" />} 
-        />
-
-        {/* --- YOUR PROTECTED APP ROUTES --- */}
-        <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
-        <Route path="/simulator" element={<ProtectedLayout><Simulator /></ProtectedLayout>} />
-        <Route path="/tools" element={<ProtectedLayout><Tools /></ProtectedLayout>} />
-        <Route path="/chat" element={<ProtectedLayout><ChatPage /></ProtectedLayout>} />
-        <Route path="/challenges" element={<ProtectedLayout><Challenges /></ProtectedLayout>} />
-        
-        {/* 🔥 FIX 2: Added the official route for the Profile page! */}
-        <Route path="/profile" element={<ProtectedLayout><Profile /></ProtectedLayout>} />
-        
-        {/* 🔥 NEW: The VaultID Scanner Route! */}
-        <Route path="/vaultid" element={<ProtectedLayout><VaultIdScanner /></ProtectedLayout>} />
-
-        {/* Catch-all: If they type a weird URL, send them to dashboard if logged in, or home if not */}
-        <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} />} />
+        <Route path="/"           element={<Home />} />
+        <Route path="/auth"       element={!user ? <Auth onLoginSuccess={setUser} /> : <Navigate to="/dashboard" />} />
+        <Route path="/dashboard"  element={wrap(<Dashboard />)} />
+        <Route path="/simulator"  element={wrap(<Simulator />)} />
+        <Route path="/tools"      element={wrap(<Tools />)} />
+        <Route path="/chat"       element={wrap(<ChatPage />)} />
+        <Route path="/challenges" element={wrap(<Challenges />)} />
+        <Route path="/profile"    element={wrap(<Profile />)} />
+        <Route path="/vaultid"    element={wrap(<VaultIdScanner />)} />
+        <Route path="*"           element={<Navigate to={user ? '/dashboard' : '/'} />} />
       </Routes>
     </Router>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppInner />
+    </ThemeProvider>
+  );
+}

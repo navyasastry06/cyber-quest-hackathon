@@ -1,61 +1,80 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ShieldAlert, Wrench, Bot, Shield, Trophy, Search } from 'lucide-react';
+import { useColors } from '../context/useColors';
+
+const NAV_ITEMS = [
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/simulator', icon: ShieldAlert,     label: 'Simulator' },
+  { to: '/tools',     icon: Wrench,          label: 'Threat Tools' },
+  { to: '/chat',      icon: Bot,             label: 'AI Copilot' },
+  { to: '/vaultid',   icon: Search,          label: 'Intel Scanner' },
+  { to: '/challenges',icon: Trophy,          label: 'Challenges' },
+];
 
 const Sidebar = () => {
-  const location = useLocation();
-  const isActive = (path) => location.pathname === path;
+  const location  = useLocation();
+  const c         = useColors();
+  const isActive  = (path) => location.pathname === path;
 
   return (
-    <div className="w-64 bg-gray-900 text-white flex flex-col h-screen border-r border-gray-800 shrink-0">
-      
-      {/* Brand / Logo Area */}
-      <div className="p-6 flex items-center gap-3 border-b border-gray-800 shrink-0">
-        <div className="p-2 bg-blue-600 rounded-lg shadow-lg">
-          <Shield size={24} className="text-white" />
+    <div style={{
+      width: 240, background: c.sidebarBg, color: c.textPrimary,
+      display: 'flex', flexDirection: 'column', height: '100vh',
+      borderRight: `1px solid ${c.sidebarBorder}`, flexShrink: 0,
+      transition: 'background 0.25s, color 0.25s, border-color 0.25s',
+    }}>
+
+      {/* Brand */}
+      <div style={{ padding: '20px 20px 16px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: `1px solid ${c.sidebarBorder}` }}>
+        <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(135deg,#4f46e5,#06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 15px rgba(79,70,229,0.35)', flexShrink: 0 }}>
+          <Shield size={20} color="white" />
         </div>
-        <h1 className="text-xl font-bold tracking-wider text-white">CyberQuest</h1>
+        <div>
+          <p style={{ color: c.textPrimary, fontWeight: 900, fontSize: 14, margin: 0, lineHeight: 1.2 }}>CyberQuest</p>
+          <p style={{ color: c.indigo, fontWeight: 700, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.15em', margin: 0 }}>Operative Hub</p>
+        </div>
       </div>
 
-      {/* Navigation Links - ADDED THE SCROLLER HERE (overflow-y-auto) */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        <Link to="/dashboard" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}>
-          <LayoutDashboard size={20} />
-          <span className="font-medium">Dashboard</span>
-        </Link>
-        <Link to="/simulator" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/simulator') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}>
-          <ShieldAlert size={20} />
-          <span className="font-medium">Simulator</span>
-        </Link>
-        <Link to="/tools" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/tools') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}>
-          <Wrench size={20} />
-          <span className="font-medium">Threat Tools</span>
-        </Link>
-        <Link to="/chat" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/chat') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}>
-          <Bot size={20} />
-          <span className="font-medium">AI Copilot</span>
-        </Link>
-        <Link to="/vaultid" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/vaultid') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}>
-          <Search size={20} />
-          <span className="font-medium">Intel Scanner</span>
-        </Link>
-        <Link to="/challenges" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/challenges') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}>
-          <Trophy size={20} />
-          <span className="font-medium">Challenges</span>
-        </Link>
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
+        <p style={{ color: c.textMuted, fontWeight: 900, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.2em', padding: '8px 10px 4px', margin: 0 }}>Modules</p>
+        {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+          const active = isActive(to);
+          return (
+            <Link key={to} to={to} style={{ textDecoration: 'none' }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '9px 12px', borderRadius: 12, marginBottom: 2,
+                background: active ? c.sidebarActive : 'transparent',
+                border: active ? `1px solid ${c.indigo}35` : '1px solid transparent',
+                color: active ? c.indigo : c.sidebarText,
+                fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                transition: 'all 0.18s',
+              }}
+                onMouseEnter={e => { if (!active) { e.currentTarget.style.background = c.bgHover; e.currentTarget.style.color = c.textPrimary; } }}
+                onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = c.sidebarText; } }}>
+                <div style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: active ? `${c.indigo}20` : 'transparent', flexShrink: 0 }}>
+                  <Icon size={16} />
+                </div>
+                <span>{label}</span>
+                {active && <div style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: c.indigo, boxShadow: `0 0 6px ${c.indigo}` }} />}
+              </div>
+            </Link>
+          );
+        })}
       </nav>
 
-      {/* Bottom Footer Area */}
-      <div className="p-4 border-t border-gray-800 shrink-0">
-        <div className="bg-gray-800 rounded-lg p-3 text-sm text-gray-400 text-center">
-          <p className="font-semibold text-gray-300">System Status</p>
-          <p className="flex items-center justify-center gap-2 mt-1">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+      {/* Footer */}
+      <div style={{ padding: 12, borderTop: `1px solid ${c.sidebarBorder}` }}>
+        <div style={{ background: c.bgHover, border: `1px solid ${c.border}`, borderRadius: 12, padding: '10px 14px', textAlign: 'center' }}>
+          <p style={{ color: c.textMuted, fontWeight: 900, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.18em', margin: '0 0 4px' }}>System Status</p>
+          <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, margin: 0, color: c.textSecondary, fontWeight: 600, fontSize: 12 }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981', display: 'inline-block' }} />
             Online & Secure
           </p>
         </div>
       </div>
-
     </div>
   );
 };

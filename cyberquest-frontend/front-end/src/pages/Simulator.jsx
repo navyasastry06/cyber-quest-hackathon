@@ -1,178 +1,125 @@
 import React, { useState } from 'react';
 import emailsData from '../data/emails.json';
-import { AlertTriangle, CheckCircle, Mail } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Mail, Terminal, Shield } from 'lucide-react';
+import API_BASE_URL from '../config';
+import { useColors } from '../context/useColors';
 
 const Simulator = () => {
+  const c = useColors();
   const [selectedEmail, setSelectedEmail] = useState(emailsData[0]);
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState(null);
 
   const handleDecision = async (decision) => {
-    let isCorrect = false;
-    let points = 0;
-
-    // Determination Logic
-    if (decision === 'report' && selectedEmail.isPhishing) {
-      isCorrect = true;
-      points = 100;
-    } else if (decision === 'safe' && !selectedEmail.isPhishing) {
-      isCorrect = true;
-      points = 50;
-    } else {
-      isCorrect = false;
-      points = -50;
-    }
-
-    // 🔥 SYNC TO BACKEND
+    const isCorrect = (decision === 'report' && selectedEmail.isPhishing) || (decision === 'safe' && !selectedEmail.isPhishing);
+    const points = isCorrect ? (decision === 'report' ? 100 : 50) : -50;
     const savedUser = JSON.parse(localStorage.getItem('cyberquest_user'));
     if (savedUser) {
+      const token = localStorage.getItem('cyberquest_token');
       try {
-        await fetch('http://localhost:5000/api/user/update-xp', {
+        await fetch(`${API_BASE_URL}/api/user/update-xp`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: savedUser.email,
-            xpGain: points,             // Matches backend xpGain
-            wasCorrect: isCorrect,       // Matches backend logic
-            isPhishing: selectedEmail.isPhishing,
-            isChallenge: false           // This is the Simulator, not the Arena
-          })
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ email: savedUser.email, xpGain: points, wasCorrect: isCorrect, isPhishing: selectedEmail.isPhishing, isChallenge: false })
         });
-      } catch (err) {
-        console.error("Failed to sync with security server:", err);
-      }
+      } catch (err) { console.error('Failed to sync:', err); }
     }
-
-    // UI Feedback Logic
-    if (isCorrect) {
-      setScore(prev => prev + points);
-      setFeedback({
-        type: "success",
-        message: `+${points} XP Earned`,
-      });
-    } else {
-      setScore(prev => prev + points); // Adds the negative points
-      setFeedback({
-        type: "fail",
-        message: "SYSTEM BREACHED",
-        clue: selectedEmail.explanation,
-      });
-    }
-
-    setTimeout(() => setFeedback(null), 3000); // Increased to 3s so the animation can play out
+    setScore(prev => prev + points);
+    setFeedback({ type: isCorrect ? 'success' : 'fail', message: isCorrect ? `+${points} XP Earned` : 'SECURITY BREACH', clue: selectedEmail.explanation });
+    setTimeout(() => setFeedback(null), 3200);
   };
 
-  return (
-    <div className="h-screen flex flex-col bg-gray-100 p-6 relative overflow-hidden">
-      
-      {/* FEEDBACK OVERLAY */}
-      {feedback && (
-        <div
-          className={`fixed inset-0 flex items-center justify-center z-50 transition-all duration-300 ${
-            feedback.type === "success"
-              ? "bg-green-600/95"
-              : "bg-red-900/95 flash shake"
-          }`}
-        >
-          <div className="text-center text-white px-8 animate-bounce-short flex flex-col items-center">
-            
-            {/* 🎬 LOTTIE ANIMATION DROP ZONE */}
-            <div className="w-48 h-48 mb-6 shrink-0 bg-white/10 rounded-3xl shadow-sm flex items-center justify-center border-2 border-dashed border-white/50 backdrop-blur-sm">
-              <p className="text-sm text-white font-bold px-4 text-center uppercase tracking-widest">
-                {feedback.type === "success" ? "FRIENDS: PUT HAPPY LOTTIE HERE" : "FRIENDS: PUT SAD LOTTIE HERE"}
-              </p>
-              {/* INSTRUCTIONS FOR FRIENDS: 
-                  Replace the <p> tag above with your Lottie component:
-                  <Lottie animationData={feedback.type === "success" ? happyAnimation : sadAnimation} loop={feedback.type !== "success"} /> 
-              */}
-            </div>
+  const diffColor = (d) => d === 'hard' ? '#ef4444' : d === 'medium' ? '#f59e0b' : '#10b981';
 
-            <h2 className={`text-6xl font-black mb-6 tracking-tight ${
-                feedback.type === "fail" ? "glitch text-red-200" : ""
-              }`}
-            >
-              {feedback.type === "success" ? "✅ ACCESS GRANTED" : "⚠ SECURITY BREACH ⚠"}
-            </h2>
-            <p className="text-3xl font-bold mb-6">{feedback.message}</p>
-            {feedback.type === "fail" && (
-              <div className="bg-black/40 p-6 rounded-xl max-w-xl mx-auto border border-red-500 shadow-2xl">
-                <p className="text-lg font-semibold mb-2 text-red-300 uppercase tracking-widest">Forensics Report:</p>
-                <p className="text-base text-gray-200 italic">{feedback.clue}</p>
+  return (
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background: c.bgPage, padding:'20px 24px', fontFamily:'inherit', transition:'background 0.25s', position:'relative', overflow:'hidden' }}>
+
+      {/* Feedback overlay */}
+      {feedback && (
+        <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:50, background: feedback.type==='success' ? 'rgba(5,40,20,0.92)' : 'rgba(40,5,5,0.92)', backdropFilter:'blur(6px)' }}>
+          <div style={{ textAlign:'center', color:'white', padding:'40px 48px', maxWidth:500 }}>
+            <div style={{ width:80, height:80, borderRadius:'50%', margin:'0 auto 20px', display:'flex', alignItems:'center', justifyContent:'center', border:`2px solid ${feedback.type==='success'?'#10b981':'#ef4444'}`, background: feedback.type==='success'?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)' }}>
+              {feedback.type==='success' ? <CheckCircle size={40} color="#10b981" /> : <AlertTriangle size={40} color="#ef4444" />}
+            </div>
+            <h2 style={{ fontSize:36, fontWeight:900, marginBottom:12 }}>{feedback.type==='success' ? '✅ THREAT NEUTRALIZED' : '⚠ SECURITY BREACH'}</h2>
+            <p style={{ fontSize:20, fontWeight:700, opacity:0.8, marginBottom:16 }}>{feedback.message}</p>
+            {feedback.type==='fail' && (
+              <div style={{ background:'rgba(0,0,0,0.5)', padding:'16px 20px', borderRadius:16, border:'1px solid rgba(239,68,68,0.35)', textAlign:'left' }}>
+                <p style={{ fontSize:10, color:'#ef4444', fontWeight:900, textTransform:'uppercase', letterSpacing:'0.2em', marginBottom:6 }}>Forensics Report</p>
+                <p style={{ fontSize:13, color:'#cbd5e1', lineHeight:1.65, margin:0, fontStyle:'italic' }}>{feedback.clue}</p>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+      {/* Header */}
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16, background: c.bgCard, border:`1px solid ${c.border}`, padding:'14px 20px', borderRadius:18 }}>
         <div>
-          <h1 className="text-2xl font-black text-blue-700 tracking-tight">Active Inbox Simulation</h1>
-          <p className="text-sm text-gray-500 font-medium">Identify the threats. Protect the network.</p>
+          <div style={{ display:'flex', alignItems:'center', gap:6, color: c.cyan, marginBottom:4 }}>
+            <Terminal size={13} />
+            <span style={{ fontSize:10, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.25em' }}>Virtual Simulation</span>
+          </div>
+          <h1 style={{ fontSize:20, fontWeight:900, textTransform:'uppercase', letterSpacing:'-0.01em', color: c.textPrimary, margin:0 }}>Active Inbox Simulation</h1>
         </div>
-        <div className="bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md flex flex-col items-center">
-          <span className="text-xs uppercase tracking-wider font-semibold opacity-80">Risk Score</span>
-          <div className="text-3xl font-black leading-none">{score}</div>
+        <div style={{ background: c.bgElevated, border:`1px solid ${c.yellow}35`, padding:'12px 24px', borderRadius:14, display:'flex', alignItems:'center', gap:12 }}>
+          <Shield size={18} color={c.yellow} />
+          <div>
+            <p style={{ fontSize:9, fontWeight:900, color: c.yellow, textTransform:'uppercase', letterSpacing:'0.2em', margin:0 }}>Risk Score</p>
+            <p style={{ fontSize:22, fontWeight:900, color: c.textPrimary, margin:0, lineHeight:1.1 }}>{score}</p>
+          </div>
         </div>
       </div>
 
-      {/* MAIN UI */}
-      <div className="flex-1 flex gap-6 overflow-hidden">
-        {/* INBOX LIST */}
-        <div className="w-1/3 bg-white rounded-xl shadow-sm border border-gray-200 overflow-y-auto">
-          <div className="p-4 border-b border-gray-100 bg-gray-50 font-semibold text-gray-700 sticky top-0 z-10">
-            Inbox ({emailsData.length})
+      {/* Main split */}
+      <div style={{ flex:1, display:'flex', gap:16, overflow:'hidden', minHeight:0 }}>
+
+        {/* Inbox */}
+        <div style={{ width:240, background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:18, overflow:'hidden', display:'flex', flexDirection:'column', flexShrink:0 }}>
+          <div style={{ padding:'12px 16px', borderBottom:`1px solid ${c.border}`, background: c.bgElevated }}>
+            <p style={{ fontSize:10, fontWeight:900, color: c.textMuted, textTransform:'uppercase', letterSpacing:'0.2em', margin:0 }}>Inbox ({emailsData.length})</p>
           </div>
-          <div className="divide-y divide-gray-100">
-            {emailsData.map((email) => (
-              <div
-                key={email.id}
-                onClick={() => setSelectedEmail(email)}
-                className={`p-4 cursor-pointer transition-colors ${
-                  selectedEmail.id === email.id ? 'bg-blue-50 border-l-4 border-blue-700' : 'hover:bg-gray-50'
-                }`}
-              >
-                <div className="font-bold text-gray-800">{email.senderName}</div>
-                <div className="text-sm font-semibold text-gray-900 truncate">{email.subject}</div>
-                <div className="text-xs text-gray-500 mt-1 uppercase tracking-wider">{email.difficulty}</div>
+          <div style={{ flex:1, overflowY:'auto' }}>
+            {emailsData.map(email => (
+              <div key={email.id} onClick={() => setSelectedEmail(email)}
+                style={{ padding:'12px 16px', cursor:'pointer', borderBottom:`1px solid ${c.border}`, borderLeft:`3px solid ${selectedEmail.id===email.id ? c.indigo : 'transparent'}`, background: selectedEmail.id===email.id ? `${c.indigo}10` : 'transparent', transition:'all 0.15s' }}>
+                <p style={{ fontWeight:700, fontSize:13, color: c.textPrimary, margin:'0 0 2px' }}>{email.senderName}</p>
+                <p style={{ fontSize:12, color: c.textSecondary, margin:'0 0 4px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{email.subject}</p>
+                <span style={{ fontSize:9, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.1em', color: diffColor(email.difficulty) }}>{email.difficulty}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* EMAIL VIEW */}
-        <div className="w-2/3 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
-          <div className="p-6 border-b border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{selectedEmail.subject}</h2>
-            <div className="flex items-center gap-3 text-sm">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700">
-                <Mail size={20} />
+        {/* Email viewer */}
+        <div style={{ flex:1, background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:18, display:'flex', flexDirection:'column', overflow:'hidden', minWidth:0 }}>
+          <div style={{ padding:'20px 24px', borderBottom:`1px solid ${c.border}`, background: c.bgElevated }}>
+            <h2 style={{ fontSize:18, fontWeight:900, color: c.textPrimary, margin:'0 0 12px', lineHeight:1.3 }}>{selectedEmail.subject}</h2>
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <div style={{ width:38, height:38, borderRadius:10, background:`${c.blue}15`, border:`1px solid ${c.blue}30`, display:'flex', alignItems:'center', justifyContent:'center', color: c.blue }}>
+                <Mail size={17} />
               </div>
               <div>
-                <div className="font-bold text-gray-900">{selectedEmail.senderName}</div>
-                <div className="text-gray-500">&lt;{selectedEmail.senderEmail}&gt;</div>
+                <p style={{ fontWeight:700, color: c.textPrimary, fontSize:13, margin:0 }}>{selectedEmail.senderName}</p>
+                <p style={{ color: c.textMuted, fontSize:11, fontFamily:'monospace', margin:0 }}>&lt;{selectedEmail.senderEmail}&gt;</p>
               </div>
             </div>
           </div>
-
-          <div className="p-6 flex-1 text-gray-800 whitespace-pre-wrap leading-relaxed overflow-y-auto">
+          <div style={{ flex:1, padding:'20px 24px', color: c.textSecondary, lineHeight:1.7, overflowY:'auto', fontSize:14, whiteSpace:'pre-wrap' }}>
             {selectedEmail.body}
           </div>
-
-          <div className="p-6 bg-gray-50 border-t border-gray-100 flex gap-4 justify-end rounded-b-xl">
-            <button
-              onClick={() => handleDecision('safe')}
-              className="flex items-center gap-2 px-6 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition-colors shadow-sm"
-            >
-              <CheckCircle size={18} className="text-green-600" />
-              Mark as Safe
+          <div style={{ padding:'16px 20px', background: c.bgElevated, borderTop:`1px solid ${c.border}`, display:'flex', gap:10, justifyContent:'flex-end' }}>
+            <button onClick={() => handleDecision('safe')}
+              style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 20px', background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:12, color: c.textSecondary, fontWeight:700, fontSize:13, cursor:'pointer', transition:'all 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor='#10b981'; e.currentTarget.style.color='#10b981'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor=c.border; e.currentTarget.style.color=c.textSecondary; }}>
+              <CheckCircle size={15} color="#10b981" /> Mark as Safe
             </button>
-            <button
-              onClick={() => handleDecision('report')}
-              className="flex items-center gap-2 px-6 py-2 bg-red-600 rounded-lg text-white font-semibold hover:bg-red-700 transition-colors shadow-sm"
-            >
-              <AlertTriangle size={18} />
-              Report Phishing
+            <button onClick={() => handleDecision('report')}
+              style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 20px', background:'rgba(239,68,68,0.1)', border:`1px solid rgba(239,68,68,0.4)`, borderRadius:12, color:'#ef4444', fontWeight:700, fontSize:13, cursor:'pointer', transition:'all 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.background='#ef4444'; e.currentTarget.style.color='white'; }}
+              onMouseLeave={e => { e.currentTarget.style.background='rgba(239,68,68,0.1)'; e.currentTarget.style.color='#ef4444'; }}>
+              <AlertTriangle size={15} /> Report Phishing
             </button>
           </div>
         </div>

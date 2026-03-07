@@ -1,159 +1,66 @@
 [
-  {
-    "id": 201,
-    "title": "The Midnight Breach",
-    "instruction": "Analyze the live firewall logs below. Click on the request that indicates a Directory Traversal attack.",
-    "logs": [
-      {"time": "23:58:12", "ip": "192.168.1.45", "req": "GET /assets/style.css", "status": 200},
-      {"time": "23:58:14", "ip": "10.0.0.2", "req": "POST /api/login", "status": 401},
-      {"time": "23:58:15", "ip": "10.0.0.2", "req": "POST /api/login", "status": 401},
-      {"time": "23:58:22", "ip": "198.51.100.73", "req": "GET /download?file=../../../etc/passwd", "status": 200},
-      {"time": "23:58:25", "ip": "192.168.1.45", "req": "GET /dashboard", "status": 200}
-    ],
-    "maliciousIndex": 3,
-    "points": 250,
-    "explanation": "The request containing '../../../etc/passwd' is a classic Directory Traversal attack attempting to access sensitive Linux system files outside the web folder."
-  },
-  {
-    "id": 202,
-    "title": "Database Probe",
-    "instruction": "Analyze the server logs. Click the request that indicates a SQL Injection attempt.",
-    "logs": [
-      {"time": "10:01:11", "ip": "192.168.0.14", "req": "GET /home", "status": 200},
-      {"time": "10:01:13", "ip": "172.16.0.5", "req": "POST /login", "status": 401},
-      {"time": "10:01:17", "ip": "203.0.113.9", "req": "GET /product?id=1 OR 1=1", "status": 200},
-      {"time": "10:01:20", "ip": "192.168.0.14", "req": "GET /cart", "status": 200}
-    ],
-    "maliciousIndex": 2,
-    "points": 250,
-    "explanation": "The '1 OR 1=1' condition is a classic SQL Injection attempt used to bypass database queries."
-  },
-
-  {
-    "id": 203,
-    "title": "Injected Comment",
-    "instruction": "Identify the request that contains a Cross-Site Scripting (XSS) payload.",
-    "logs": [
-      {"time": "11:10:05", "ip": "192.168.1.10", "req": "GET /blog", "status": 200},
-      {"time": "11:10:09", "ip": "198.51.100.25", "req": "POST /comment?msg=<script>alert(1)</script>", "status": 200},
-      {"time": "11:10:15", "ip": "192.168.1.10", "req": "GET /profile", "status": 200}
-    ],
-    "maliciousIndex": 1,
-    "points": 250,
-    "explanation": "The script tag indicates an XSS payload attempting to execute JavaScript in the browser."
-  },
-
-  {
-    "id": 204,
-    "title": "System Command Attack",
-    "instruction": "Find the request attempting command injection.",
-    "logs": [
-      {"time": "12:00:01", "ip": "10.0.0.12", "req": "GET /status", "status": 200},
-      {"time": "12:00:04", "ip": "203.0.113.45", "req": "GET /ping?host=google.com", "status": 200},
-      {"time": "12:00:07", "ip": "203.0.113.45", "req": "GET /ping?host=google.com;cat /etc/passwd", "status": 200},
-      {"time": "12:00:11", "ip": "10.0.0.12", "req": "GET /dashboard", "status": 200}
-    ],
-    "maliciousIndex": 2,
-    "points": 250,
-    "explanation": "The ';cat /etc/passwd' indicates command chaining used in command injection attacks."
-  },
-
-  {
-    "id": 205,
-    "title": "Hidden Files",
-    "instruction": "Which log shows a Directory Traversal attempt?",
-    "logs": [
-      {"time": "13:22:05", "ip": "192.168.0.7", "req": "GET /images/logo.png", "status": 200},
-      {"time": "13:22:07", "ip": "198.51.100.90", "req": "GET /download?file=../../config.json", "status": 200},
-      {"time": "13:22:11", "ip": "192.168.0.7", "req": "GET /home", "status": 200}
-    ],
-    "maliciousIndex": 1,
-    "points": 250,
-    "explanation": "The '../' path is used to access files outside the intended directory."
-  },
-
-  {
-    "id": 206,
-    "title": "User Data Exposure",
-    "instruction": "Find the request demonstrating an IDOR attack.",
-    "logs": [
-      {"time": "14:05:01", "ip": "192.168.1.5", "req": "GET /api/user/1001", "status": 200},
-      {"time": "14:05:05", "ip": "192.168.1.5", "req": "GET /api/user/1002", "status": 200},
-      {"time": "14:05:09", "ip": "203.0.113.18", "req": "GET /api/user/9999", "status": 200}
-    ],
-    "maliciousIndex": 2,
-    "points": 250,
-    "explanation": "Accessing sequential user IDs may indicate IDOR attempts to retrieve unauthorized user data."
-  },
-
-  {
-    "id": 207,
-    "title": "Brute Force Attempt",
-    "instruction": "Find the login request that indicates brute-force activity.",
-    "logs": [
-      {"time": "15:10:01", "ip": "198.51.100.50", "req": "POST /login", "status": 401},
-      {"time": "15:10:02", "ip": "198.51.100.50", "req": "POST /login", "status": 401},
-      {"time": "15:10:03", "ip": "198.51.100.50", "req": "POST /login", "status": 401},
-      {"time": "15:10:10", "ip": "192.168.0.22", "req": "GET /home", "status": 200}
-    ],
-    "maliciousIndex": 1,
-    "points": 250,
-    "explanation": "Multiple rapid login failures from the same IP indicate a brute-force attack."
-  },
-
-  {
-    "id": 208,
-    "title": "Encoded Attack",
-    "instruction": "Identify the log containing an encoded XSS payload.",
-    "logs": [
-      {"time": "16:12:05", "ip": "192.168.0.12", "req": "GET /contact", "status": 200},
-      {"time": "16:12:07", "ip": "203.0.113.88", "req": "GET /search?q=%3Cscript%3Ealert(1)%3C/script%3E", "status": 200},
-      {"time": "16:12:09", "ip": "192.168.0.12", "req": "GET /about", "status": 200}
-    ],
-    "maliciousIndex": 1,
-    "points": 250,
-    "explanation": "The encoded '<script>' tag (%3Cscript%3E) indicates a hidden XSS attack."
-  },
-
-  {
-    "id": 209,
-    "title": "Config Exposure",
-    "instruction": "Find the request attempting to access a sensitive configuration file.",
-    "logs": [
-      {"time": "17:05:02", "ip": "192.168.1.12", "req": "GET /index.html", "status": 200},
-      {"time": "17:05:06", "ip": "198.51.100.70", "req": "GET /.env", "status": 200},
-      {"time": "17:05:09", "ip": "192.168.1.12", "req": "GET /blog", "status": 200}
-    ],
-    "maliciousIndex": 1,
-    "points": 250,
-    "explanation": "The '.env' file usually contains sensitive credentials and should never be publicly accessible."
-  },
-
-  {
-    "id": 210,
-    "title": "Suspicious Redirect",
-    "instruction": "Identify the request attempting an open redirect.",
-    "logs": [
-      {"time": "18:00:01", "ip": "192.168.0.9", "req": "GET /login", "status": 200},
-      {"time": "18:00:04", "ip": "203.0.113.60", "req": "GET /redirect?url=http://malicious-site.com", "status": 302},
-      {"time": "18:00:10", "ip": "192.168.0.9", "req": "GET /dashboard", "status": 200}
-    ],
-    "maliciousIndex": 1,
-    "points": 250,
-    "explanation": "Attackers exploit open redirects to send users to malicious websites."
-  },
-
-  {
-    "id": 211,
-    "title": "Unauthorized API Access",
-    "instruction": "Find the request attempting to access restricted API data.",
-    "logs": [
-      {"time": "19:20:01", "ip": "192.168.0.30", "req": "GET /api/public/news", "status": 200},
-      {"time": "19:20:05", "ip": "203.0.113.11", "req": "GET /api/admin/users", "status": 403},
-      {"time": "19:20:09", "ip": "192.168.0.30", "req": "GET /profile", "status": 200}
-    ],
-    "maliciousIndex": 1,
-    "points": 250,
-    "explanation": "The attacker attempted to access an admin-only API endpoint."
-  }
+  [
+    {
+      "question": "What does this web server log indicate?\n192.168.1.5 - - [10/Oct] \"GET /login.php?user=admin' OR '1'='1 HTTP/1.1\" 200",
+      "options": ["A successful XSS attack", "A failed login attempt", "A SQL Injection attempt", "A Path Traversal scan"],
+      "correctAnswer": "A SQL Injection attempt",
+      "explanation": "The payload `' OR '1'='1` in the `user` parameter is a classic SQL injection string used to bypass authentication."
+    },
+    {
+      "question": "You see 10,000 failed SSH login attempts in 2 minutes from 50 different IP addresses. What is happening?",
+      "options": ["A brute-force / credential stuffing attack", "A SQL Injection", "A normal user forgetting their password", "A malware infection communicating with a C2 server"],
+      "correctAnswer": "A brute-force / credential stuffing attack",
+      "explanation": "A high volume of rapid, failed authentication attempts from various IPs is indicative of a distributed brute-force attack."
+    },
+    {
+      "question": "What attack is shown here?\n\"GET /../../../../etc/passwd HTTP/1.1\" 404",
+      "options": ["Command Injection", "Directory Traversal", "Cross-Site Scripting", "SSRF"],
+      "correctAnswer": "Directory Traversal",
+      "explanation": "The repeated `../` sequence is an attempt to navigate up the directory structure to access sensitive system files like `/etc/passwd`."
+    },
+    {
+      "question": "What does this log entry suggest?\n\"GET /search?q=<script>alert('XSS')</script> HTTP/1.1\" 200",
+      "options": ["Reflected Cross-Site Scripting (XSS)", "SQL Injection", "Server-Side Request Forgery", "DDoS"],
+      "correctAnswer": "Reflected Cross-Site Scripting (XSS)",
+      "explanation": "The inclusion of `<script>` tags in the URL parameter is an attempt to execute malicious JavaScript in the victim's browser."
+    },
+    {
+      "question": "A firewall log shows unusually high outbound UDP traffic on port 53 to an unknown external IP. What is the likely cause?",
+      "options": ["Normal web browsing", "DNS Exfiltration / Tunneling", "Incoming DDoS attack", "A user downloading a large file"],
+      "correctAnswer": "DNS Exfiltration / Tunneling",
+      "explanation": "Port 53 is DNS. High outbound volume to a single unknown IP suggests malware or an attacker is tunneling data out of the network disguised as DNS queries."
+    }
+  ],
+  [
+    {
+      "question": "Multiple logs showing \"POST /xmlrpc.php\" on a WordPress site from various IPs usually indicates:",
+      "options": ["Normal admin activity", "An attempt to execute a pingback DDoS or brute-force attack", "Theme installation", "Database backup running"],
+      "correctAnswer": "An attempt to execute a pingback DDoS or brute-force attack",
+      "explanation": "The `xmlrpc.php` file in WordPress is historically abused by attackers for amplification DDoS attacks and mass brute-force login attempts."
+    },
+    {
+      "question": "Identify the attack from this access log:\n10.0.0.12 - - [01/Nov] \"GET /ping?host=google.com;cat /etc/shadow HTTP/1.1\" 200",
+      "options": ["Command Injection", "Directory Traversal", "Cross-Site Scripting", "SSRF"],
+      "correctAnswer": "Command Injection",
+      "explanation": "The `;cat /etc/shadow` indicates command chaining used in command injection attacks to execute arbitrary OS tasks."
+    },
+    {
+      "question": "Find the attack in this log:\n\"GET /api/user/1001 HTTP/1.1\" 200\n\"GET /api/user/1002 HTTP/1.1\" 200\n\"GET /api/user/9999 HTTP/1.1\" 200",
+      "options": ["IDOR (Insecure Direct Object Reference)", "SQL Injection", "Brute Force", "DDoS"],
+      "correctAnswer": "IDOR (Insecure Direct Object Reference)",
+      "explanation": "Accessing sequential user IDs rapidly may indicate an attacker using IDOR to scrape or access unauthorized user data."
+    },
+    {
+      "question": "What does this encoded payload indicate?\n\"GET /search?q=%3Cscript%3Ealert(1)%3C/script%3E HTTP/1.1\" 200",
+      "options": ["Encoded XSS payload", "Encoded SQLi payload", "Directory Traversal", "Buffer Overflow"],
+      "correctAnswer": "Encoded XSS payload",
+      "explanation": "The URL-encoded `<script>` tag (`%3Cscript%3E`) indicates an attacker attempting to slip an XSS attack past basic filters."
+    },
+    {
+      "question": "What does this log attempt to access?\n\"GET /.env HTTP/1.1\" 200",
+      "options": ["The homepage", "A configuration file exposing sensitive credentials", "A harmless hidden script", "The user's environment settings"],
+      "correctAnswer": "A configuration file exposing sensitive credentials",
+      "explanation": "The `.env` file usually contains high-privilege sensitive credentials (like DB passwords and API keys) and should never be publicly accessible."
+    }
+  ]
 ]

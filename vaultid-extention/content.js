@@ -1,8 +1,8 @@
-
+// ✅ Single place to change the backend URL when deploying
+const BACKEND_URL = 'http://localhost:5000';
 
 // Replace with the AppID you got from the InboxSDK website
 const MY_APP_ID = 'sdk_VaultID_82e916ce03';
-
 
 InboxSDK.load(2, MY_APP_ID).then(function(sdk) {
   sdk.Conversations.registerMessageViewHandler(function(messageView) {
@@ -12,10 +12,10 @@ InboxSDK.load(2, MY_APP_ID).then(function(sdk) {
     if (sdk.User.getEmailAddress() === emailAddress) return;
 
     const threadView = messageView.getThreadView();
-    
+
     // 1. Create the container FIRST
     const uiContainer = createSidebarUI(emailAddress);
-    
+
     // 2. Inject it into Gmail
     threadView.addSidebarContentPanel({
       title: 'VaultID Identity Report',
@@ -23,8 +23,8 @@ InboxSDK.load(2, MY_APP_ID).then(function(sdk) {
       el: uiContainer
     });
 
-    // 3. Pass the EXACT container to our fetch function
-    scanEmail(emailAddress, uiContainer);
+    // 3. ✅ Pass sdk explicitly — no outer-scope closure dependency
+    scanEmail(emailAddress, uiContainer, sdk);
   });
 });
 
@@ -41,29 +41,29 @@ function createSidebarUI(email) {
   return div;
 }
 
-async function scanEmail(email, container) {
+// ✅ sdk is passed as a parameter — self-contained, no closure risk
+async function scanEmail(email, container, sdk) {
     console.log(`[VaultID Frontend] Sending ${email} to backend...`);
     try {
-        const response = await fetch('http://localhost:5000/api/vaultid/scan', {
+        const response = await fetch(`${BACKEND_URL}/api/vaultid/scan`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ senderEmail: email })
         });
-        
+
         const data = await response.json();
-        
+
         const isSafe = data.trustScore > 60;
-        const color = isSafe ? '#22c55e' : '#ef4444'; 
+        const color = isSafe ? '#22c55e' : '#ef4444';
         const statusText = isSafe ? '🟢 VERIFIED' : '🚨 HIGH RISK';
 
-        // 1. SMART LOGIC: Only show the Report button if it's NOT safe!
-        const actionButtonHTML = isSafe 
+        // Only show the Report button if it's NOT safe
+        const actionButtonHTML = isSafe
             ? `<p style="text-align: center; margin-top: 15px; color: #22c55e; font-size: 13px; font-weight: bold;">🛡️ Threat Level Zero. No action required.</p>`
             : `<button id="report-btn" style="width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px;">
                     🚨 Report Scam (+50 XP)
                </button>`;
 
-        // 2. Inject the UI
         container.innerHTML = `
             <div style="padding: 15px; background-color: #0f172a; color: #e2e8f0; border-radius: 8px; border: 1px solid ${color}; font-family: sans-serif;">
                 <h3 style="margin-top: 0; color: ${color};">${statusText}</h3>
@@ -76,55 +76,62 @@ async function scanEmail(email, container) {
             </div>
         `;
 
-     // 3. Only attach the click listener if the button actually exists
+        // Only attach the click listener if the button actually exists
         if (!isSafe) {
             const reportBtn = container.querySelector('#report-btn');
-            
+
+            // ✅ sdk is a direct parameter here — no stale closure risk
             reportBtn.addEventListener('click', async () => {
-                // UI Feedback: Change button while loading
                 reportBtn.innerText = '⏳ Syncing to Global Registry...';
-                reportBtn.style.background = '#f59e0b'; // Yellow warning color
+                reportBtn.style.background = '#f59e0b';
                 reportBtn.disabled = true;
-                
+
                 try {
-                    // Grab the Operative's (User's) own Gmail address using InboxSDK
                     const operativeEmail = sdk.User.getEmailAddress();
 
-                    // Send the exact payload your backend requires
-                    const xpResponse = await fetch('http://localhost:5000/api/user/update-xp', {
+                    const xpResponse = await fetch(`${BACKEND_URL}/api/user/update-xp`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            email: operativeEmail, 
+                        body: JSON.stringify({
+                            email: operativeEmail,
                             xpGain: 50,
-                            wasCorrect: true,     // They correctly identified it!
-                            isPhishing: true,     // It was a real threat
-                            isChallenge: false    // This is a live email, not a test
+                            wasCorrect: true,
+                            isPhishing: true,
+                            isChallenge: false
                         })
                     });
 
-                    const data = await xpResponse.json();
+                    const xpData = await xpResponse.json();
 
-                    if (xpResponse.ok && data.success) {
-                        // Success! Show the new total XP from the database
-                        reportBtn.innerText = `✅ Threat Neutralized (Total XP: ${data.stats.total_xp})`;
-                        reportBtn.style.background = '#22c55e'; // Green
+                    if (xpResponse.ok && xpData.success) {
+                        reportBtn.innerText = `✅ Threat Neutralized (Total XP: ${xpData.stats.total_xp})`;
+                        reportBtn.style.background = '#22c55e';
                         reportBtn.style.cursor = 'default';
                     } else {
-                        throw new Error(data.error || "Server rejected XP sync");
+                        throw new Error(xpData.error || 'Server rejected XP sync');
                     }
-                    
+
                 } catch (error) {
-                    console.error("[VaultID] XP Sync Error:", error);
+                    console.error('[VaultID] XP Sync Error:', error);
                     reportBtn.innerText = '❌ Sync Failed. Try Again.';
-                    reportBtn.style.background = '#ef4444'; // Back to Red
+                    reportBtn.style.background = '#ef4444';
                     reportBtn.disabled = false;
                 }
             });
         }
 
     } catch (error) {
-        console.error("[VaultID Frontend] Connection Error:", error);
-        container.innerHTML = `<div style="padding: 15px; background-color: #0f172a; color: #ef4444; border: 1px solid #ef4444; border-radius: 8px;">🚨 Connection to Backend Failed. Is your server running?</div>`;
+        // ✅ Improved offline fallback with actionable message
+        console.error('[VaultID Frontend] Connection Error:', error);
+        container.innerHTML = `
+            <div style="padding: 15px; background-color: #0f172a; border: 1px solid #f59e0b; border-radius: 8px; font-family: sans-serif;">
+                <h3 style="margin-top: 0; color: #f59e0b;">🔌 VaultID is Offline</h3>
+                <p style="font-size: 13px; color: #94a3b8; margin: 0;">
+                    Cannot reach the backend at <code style="color: #fbbf24;">${BACKEND_URL}</code>.<br/><br/>
+                    Please make sure your local server is running:<br/>
+                    <code style="color: #38bdf8;">npm run dev</code> in the <code style="color: #38bdf8;">cyberquest-backend</code> folder.
+                </p>
+            </div>
+        `;
     }
 }

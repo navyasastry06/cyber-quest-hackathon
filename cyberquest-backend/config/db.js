@@ -9,7 +9,7 @@ const pool = new Pool({
   port: process.env.PG_PORT,
 });
 
-// Test the connection when the server starts
+// Testing
 pool.connect()
   .then(() => console.log('🔗 Connected to PostgreSQL Database!'))
   .catch(err => console.error('🚨 Database connection error:', err.stack));

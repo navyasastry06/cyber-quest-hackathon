@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { handleChat } = require('../controllers/chatController');
+const { verifyToken } = require('../middleware/authMiddleware');
 
-// When the frontend sends a POST request here, trigger the Gemini logic
-router.post('/', handleChat);
+// Protected: only logged-in users can use the AI chatbot
+router.post('/', verifyToken, handleChat);
 
 module.exports = router;
