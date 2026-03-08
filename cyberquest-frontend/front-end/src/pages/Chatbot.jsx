@@ -27,12 +27,21 @@ const ChatPage = () => {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ message: userText }),
       });
+      
       const data = await response.json();
-      if (response.ok) setMessages(prev => [...prev, { text: data.reply, isBot: true }]);
-      else setMessages(prev => [...prev, { text: "⚠️ System busy. Please wait 60 seconds and try again.", isBot: true }]);
-    } catch {
+      
+      if (response.ok) {
+        setMessages(prev => [...prev, { text: data.reply, isBot: true }]);
+      } else {
+        // Render the true JSON error from the backend instead of a generic network drop
+        setMessages(prev => [...prev, { text: `⚠️ ${data.error || "System busy. Please try again."}`, isBot: true }]);
+      }
+    } catch (err) {
+      console.error("Chat fetch error:", err);
       setMessages(prev => [...prev, { text: "🚨 Connection to CyberGuard servers lost. Check your backend.", isBot: true }]);
-    } finally { setIsLoading(false); }
+    } finally { 
+      setIsLoading(false); 
+    }
   };
 
   return (

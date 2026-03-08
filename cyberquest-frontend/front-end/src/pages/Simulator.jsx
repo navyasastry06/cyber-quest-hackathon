@@ -8,34 +8,41 @@ import { useColors } from '../context/useColors';
 import happyRobotAnim from '../assets/happy-robot.json';
 import sadbotAnim from '../assets/sadbot.json';
 
-const LEVELS = ['Easy', 'Medium', 'Hard', 'Very Hard'];
+const LEVELS = ['Easy', 'Medium', 'Hard'];
 
 const Simulator = () => {
   const c = useColors();
   
-  const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
-  const currentDifficulty = LEVELS[currentLevelIdx];
-  const currentLevelEmails = emailsData.filter(e => e.difficulty === currentDifficulty);
+  const [currentDifficulty, setCurrentDifficulty] = useState('Easy');
+  const currentLevelEmails = emailsData.filter(e => {
+    if (currentDifficulty === 'Hard') return e.difficulty === 'Hard' || e.difficulty === 'Very Hard';
+    return e.difficulty === currentDifficulty;
+  });
 
   const [selectedEmail, setSelectedEmail] = useState(currentLevelEmails[0] || emailsData[0]);
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [completedEmails, setCompletedEmails] = useState(new Set());
 
-  const progressToNextLevel = () => {
-    if (currentLevelIdx < LEVELS.length - 1) {
-      const nextIdx = currentLevelIdx + 1;
-      setCurrentLevelIdx(nextIdx);
-      const nextLevelEmails = emailsData.filter(e => e.difficulty === LEVELS[nextIdx]);
-      setSelectedEmail(nextLevelEmails[0]);
-    }
+  const changeDifficulty = (diff) => {
+    setCurrentDifficulty(diff);
+    const nextLevelEmails = emailsData.filter(e => {
+      if (diff === 'Hard') return e.difficulty === 'Hard' || e.difficulty === 'Very Hard';
+      return e.difficulty === diff;
+    });
+    setSelectedEmail(nextLevelEmails[0] || emailsData[0]);
   };
 
   const handleDecision = async (decision) => {
     if (completedEmails.has(selectedEmail.id)) return;
 
     const isCorrect = (decision === 'report' && selectedEmail.isPhishing) || (decision === 'safe' && !selectedEmail.isPhishing);
-    const points = isCorrect ? (decision === 'report' ? 100 : 50) : -50;
+    
+    let basePoints = isCorrect ? 50 : -20;
+    if (currentDifficulty === 'Medium') basePoints = isCorrect ? 100 : -50;
+    if (currentDifficulty === 'Hard') basePoints = isCorrect ? 150 : -80;
+    const points = basePoints;
+
     const savedUser = JSON.parse(localStorage.getItem('cyberquest_user'));
     if (savedUser) {
       const token = localStorage.getItem('cyberquest_token');
@@ -101,7 +108,15 @@ const Simulator = () => {
         {/* Inbox */}
         <div style={{ width:260, background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:18, overflow:'hidden', display:'flex', flexDirection:'column', flexShrink:0 }}>
           <div style={{ padding:'12px 16px', borderBottom:`1px solid ${c.border}`, background: c.bgElevated, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <p style={{ fontSize:10, fontWeight:900, color: c.textMuted, textTransform:'uppercase', letterSpacing:'0.15em', margin:0 }}>Level {currentLevelIdx + 1}: {currentDifficulty}</p>
+            <select
+              value={currentDifficulty}
+              onChange={(e) => changeDifficulty(e.target.value)}
+              style={{ background: c.bgCard, color: c.textPrimary, border: `1px solid ${c.border}`, borderRadius: 8, padding: '4px 8px', fontSize: 11, fontWeight: 700, outline: 'none', cursor: 'pointer' }}
+            >
+              {LEVELS.map(level => (
+                <option key={level} value={level}>{level}</option>
+              ))}
+            </select>
             <span style={{ fontSize:10, fontWeight:700, color: c.textSecondary, background: c.bgCard, padding:'2px 6px', borderRadius:6 }}>{currentLevelEmails.filter(e => completedEmails.has(e.id)).length} / {currentLevelEmails.length}</span>
           </div>
           <div style={{ flex:1, overflowY:'auto' }}>
@@ -120,16 +135,6 @@ const Simulator = () => {
               );
             })}
           </div>
-          
-          {/* Next Level Button */}
-          {currentLevelEmails.every(e => completedEmails.has(e.id)) && currentLevelIdx < LEVELS.length - 1 && (
-            <div style={{ padding:'12px', borderTop:`1px solid ${c.border}`, background: c.bgElevated }}>
-              <button onClick={progressToNextLevel}
-                style={{ width:'100%', padding:'10px', background: 'linear-gradient(135deg,#4f46e5,#06b6d4)', border:'none', borderRadius:12, color:'white', fontWeight:900, fontSize:13, cursor:'pointer', display:'flex', justifyContent:'center', alignItems:'center', gap:8, boxShadow:'0 4px 12px rgba(79,70,229,0.3)' }}>
-                Next Level 🚀
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Email viewer */}

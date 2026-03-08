@@ -22,8 +22,10 @@ const Challenges = () => {
   
   // Arena State
   const [activeChallenge, setActiveChallenge] = useState(null);
-  const [challenges, setChallenges] = useState([]);
-  
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/challenges/list`).catch(console.error);
+  }, []);
+
   // Level Progression State
   const [currentLevel, setCurrentLevel] = useState(1);
   const [questionsAnsweredInLevel, setQuestionsAnsweredInLevel] = useState(0);
@@ -36,13 +38,6 @@ const Challenges = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [answered, setAnswered] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(null);
-
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/api/challenges/list`)
-      .then(r => r.ok ? r.json() : [])
-      .then(data => setChallenges(Array.isArray(data) ? data : []))
-      .catch(() => setChallenges([]));
-  }, []);
 
   const fetchQuestion = async (type, levelArg = currentLevel, indexArg = questionsAnsweredInLevel) => {
     setIsLoading(true); setFeedback(null); setAnswered(false); setSelectedIdx(null);
@@ -62,10 +57,9 @@ const Challenges = () => {
   const startChallenge = (type) => {
     setActiveChallenge(type); 
     setSessionScore(0); 
-    setCurrentLevel(1);
     setQuestionsAnsweredInLevel(0);
     setLevelCompleted(false);
-    fetchQuestion(type, 1, 0);
+    fetchQuestion(type, currentLevel, 0);
   };
 
   const submitAnswer = async (selected) => {
@@ -96,13 +90,6 @@ const Challenges = () => {
     }
   };
 
-  const startNextLevel = () => {
-    setCurrentLevel(l => l + 1);
-    setQuestionsAnsweredInLevel(0);
-    setLevelCompleted(false);
-    fetchQuestion(activeChallenge, currentLevel + 1, 0);
-  };
-
   const TYPES = ['Threat Quiz', 'Code Auditor', 'Log Detective'];
   const cardStyle = { background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:24, transition:'all 0.25s', boxShadow: c.isDark?'none':'0 2px 12px rgba(0,0,0,0.06)' };
 
@@ -118,7 +105,7 @@ const Challenges = () => {
             </div>
             <h1 style={{ fontSize:'clamp(1.6rem,3vw,2.5rem)', fontWeight:900, textTransform:'uppercase', letterSpacing:'-0.02em', color: c.textPrimary, margin:0 }}>Challenges</h1>
           </div>
-          {activeChallenge && (
+          {activeChallenge ? (
             <div style={{ display:'flex', alignItems:'center', gap:16 }}>
               <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:14, padding:'10px 20px', display:'flex', alignItems:'center', gap:8 }}>
                 <Zap size={16} color={c.yellow} />
@@ -128,6 +115,19 @@ const Challenges = () => {
                 style={{ padding:'10px 18px', borderRadius:12, border:`1px solid ${c.border}`, background: c.bgCard, color: c.textSecondary, fontWeight:700, fontSize:12, cursor:'pointer' }}>
                 ← Exit
               </button>
+            </div>
+          ) : (
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <span style={{ color: c.textSecondary, fontSize:13, fontWeight:700 }}>Difficulty:</span>
+              <select 
+                value={currentLevel}
+                onChange={(e) => setCurrentLevel(Number(e.target.value))}
+                style={{ background: c.bgCard, color: c.textPrimary, border: `1px solid ${c.border}`, borderRadius: 10, padding: '8px 12px', fontSize: 13, fontWeight: 700, outline: 'none', cursor: 'pointer' }}
+              >
+                <option value={1}>Easy (1x XP)</option>
+                <option value={2}>Medium (1.5x XP)</option>
+                <option value={3}>Hard (2x XP)</option>
+              </select>
             </div>
           )}
         </div>
@@ -175,17 +175,17 @@ const Challenges = () => {
                   </div>
                   
                   <h2 style={{ color: CHALLENGE_META[activeChallenge].color, fontWeight: 900, fontSize: 32, marginBottom: 8 }}>
-                    LEVEL {currentLevel} CLEARED!
+                    CHALLENGE COMPLETE!
                   </h2>
                   <p style={{ color: c.textSecondary, fontSize: 16, marginBottom: 32 }}>
-                    Perfect run. You earned <span style={{ color: c.yellow, fontWeight: 900 }}>{sessionScore} XP</span> total so far.
+                    Training session finished. You earned <span style={{ color: c.yellow, fontWeight: 900 }}>{sessionScore} XP</span> total so far.
                   </p>
                   
-                  <button onClick={startNextLevel}
+                  <button onClick={() => { setActiveChallenge(null); setCurrentQ(null); setFeedback(null); setAnswered(false); setLevelCompleted(false); }}
                     style={{ padding:'16px 40px', borderRadius:16, border:'none', background:`linear-gradient(135deg,${c.indigo},${c.cyan})`, color:'white', fontWeight:900, fontSize:15, cursor:'pointer', boxShadow:'0 10px 30px rgba(99,102,241,0.4)', transition:'transform 0.2s' }}
                     onMouseEnter={e => e.currentTarget.style.transform='scale(1.05)'}
                     onMouseLeave={e => e.currentTarget.style.transform='scale(1)'}>
-                    Start Level {currentLevel + 1}
+                    Return to Arena
                   </button>
                 </div>
               </div>
@@ -201,7 +201,7 @@ const Challenges = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span style={{ padding: '4px 10px', borderRadius: 8, background: `${CHALLENGE_META[activeChallenge].color}20`, color: CHALLENGE_META[activeChallenge].color, fontSize: 11, fontWeight: 900, letterSpacing: '0.1em' }}>
-                        LEVEL {currentLevel}
+                        LEVEL {currentLevel === 1 ? 'EASY' : currentLevel === 2 ? 'MEDIUM' : 'HARD'}
                       </span>
                     </div>
                     <span style={{ fontSize: 12, fontWeight: 700, color: c.textMuted }}>
@@ -262,7 +262,7 @@ const Challenges = () => {
                       {answered && (
                         <button onClick={nextQuestionOrLevel}
                           style={{ padding:'12px 28px', borderRadius:14, border:'none', background:`linear-gradient(135deg,${c.indigo},${c.cyan})`, color:'white', fontWeight:900, fontSize:13, cursor:'pointer', display:'flex', alignItems:'center', gap:8, boxShadow:'0 0 20px rgba(99,102,241,0.3)' }}>
-                          {questionsAnsweredInLevel + 1 >= QUESTIONS_PER_LEVEL ? 'Complete Level' : 'Next Question'} <ChevronRight size={16} />
+                          {questionsAnsweredInLevel + 1 >= QUESTIONS_PER_LEVEL ? 'Complete Session' : 'Next Question'} <ChevronRight size={16} />
                         </button>
                       )}
                     </>

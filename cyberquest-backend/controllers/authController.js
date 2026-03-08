@@ -91,4 +91,40 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+// RESET PASSWORD (Hackathon bypass using Email + Username)
+const resetPassword = async (req, res) => {
+  try {
+    const { email, username, newPassword } = req.body;
+
+    if (!email || !isValidEmail(email)) return res.status(400).json({ error: 'Valid email required' });
+    if (!username || username.trim().length < 3) return res.status(400).json({ error: 'Valid username required' });
+    if (!newPassword || newPassword.length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters' });
+
+    // Verify exact match
+    const userMatch = await pool.query(
+      'SELECT id FROM users WHERE email = $1 AND username = $2',
+      [email.toLowerCase(), username.trim()]
+    );
+
+    if (userMatch.rows.length === 0) {
+      return res.status(404).json({ error: 'No operative found matching that email and username combination.' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update record
+    await pool.query(
+      'UPDATE users SET password_hash = $1 WHERE id = $2',
+      [hashedPassword, userMatch.rows[0].id]
+    );
+
+    res.status(200).json({ success: true, message: 'Passcode successfully reset.' });
+  } catch (err) {
+    console.error('[auth] resetPassword error:', err.message);
+    res.status(500).json({ error: 'Server error during password reset' });
+  }
+};
+
+module.exports = { register, login, resetPassword };

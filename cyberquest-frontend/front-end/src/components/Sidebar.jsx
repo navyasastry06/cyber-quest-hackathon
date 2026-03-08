@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShieldAlert, Wrench, Bot, Shield, Trophy, Search } from 'lucide-react';
+import { LayoutDashboard, ShieldAlert, Wrench, Bot, Shield, Trophy, Search, Crosshair, Activity } from 'lucide-react';
 import { useColors } from '../context/useColors';
 
 const NAV_ITEMS = [
@@ -11,6 +11,8 @@ const NAV_ITEMS = [
   { to: '/chat', icon: Bot, label: 'AI Copilot' },
   { to: '/vaultid', icon: Search, label: 'Intel Scanner' },
   { to: '/challenges', icon: Trophy, label: 'Challenges' },
+  { to: '/attack-surface', icon: Crosshair, label: 'Attack Surface' },
+  { to: '/identity-timeline', icon: Activity, label: 'Identity Timeline' },
 ];
 
 const Sidebar = () => {
@@ -40,8 +42,9 @@ const Sidebar = () => {
       {/* Nav */}
       <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
         <p style={{ color: c.textMuted, fontWeight: 900, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.2em', padding: '8px 10px 4px', margin: 0 }}>Modules</p>
-        {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+        {NAV_ITEMS.map(({ to, icon, label }) => {
           const active = isActive(to);
+          const IconCmp = icon;
           return (
             <Link key={to} to={to} style={{ textDecoration: 'none' }}>
               <div style={{
@@ -56,7 +59,7 @@ const Sidebar = () => {
                 onMouseEnter={e => { if (!active) { e.currentTarget.style.background = c.bgHover; e.currentTarget.style.color = c.textPrimary; } }}
                 onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = c.sidebarText; } }}>
                 <div style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: active ? `${c.indigo}20` : 'transparent', flexShrink: 0 }}>
-                  <Icon size={16} />
+                  <IconCmp size={16} />
                 </div>
                 <span>{label}</span>
                 {active && <div style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: c.indigo, boxShadow: `0 0 6px ${c.indigo}` }} />}

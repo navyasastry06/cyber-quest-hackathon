@@ -72,7 +72,13 @@ const submitAnswer = async (req, res) => {
         const q = levelData[qIndex];
         
         const correct = (q.correctAnswer === selectedAnswer);
-        const xpEarned = correct ? (type === 'Code Auditor' ? 150 : 100) : 0;
+        
+        let baseXP = type === 'Code Auditor' ? 150 : 100;
+        let multiplier = 1;
+        if (Number(level) === 2) multiplier = 1.5;
+        if (Number(level) === 3) multiplier = 2;
+        
+        const xpEarned = correct ? Math.round(baseXP * multiplier) : 0;
         
         // Add XP to user profile
         if (correct) {

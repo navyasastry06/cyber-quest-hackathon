@@ -29,7 +29,7 @@ const VaultIdScanner = () => {
     } finally { setIsScanning(false); }
   };
 
-  const isSafe = scanResult && !scanResult.error && scanResult.trustScore >= 50;
+
   const isThreat = scanResult && !scanResult.error && scanResult.trustScore < 50;
 
   return (

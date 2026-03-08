@@ -20,11 +20,13 @@ const AuthThemeToggle = () => {
 
 // Field defined OUTSIDE Auth so it has a stable reference across renders.
 // Receives c, formData, handleChange as props instead of via closure.
-const Field = ({ label, icon: Icon, type, name, placeholder, inputStyle, c, value, onChange, children }) => (
+const Field = ({ label, icon, type, name, placeholder, inputStyle, c, value, onChange, children }) => {
+  const IconCmp = icon;
+  return (
   <div style={{ marginBottom: 18 }}>
     <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: c.textLabel, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8 }}>{label}</label>
     <div style={{ position: 'relative' }}>
-      <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: c.textMuted }}><Icon size={17} /></div>
+      <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: c.textMuted }}><IconCmp size={17} /></div>
       <input type={type} name={name} value={value} onChange={onChange}
         placeholder={placeholder} style={inputStyle}
         onFocus={e => e.target.style.borderColor = c.indigo}
@@ -32,38 +34,60 @@ const Field = ({ label, icon: Icon, type, name, placeholder, inputStyle, c, valu
       {children}
     </div>
   </div>
-);
+  );
+};
 
 const Auth = ({ onLoginSuccess }) => {
   const c = useColors();
-  const [isLogin, setIsLogin] = useState(true);
+  const [authMode, setAuthMode] = useState('login'); // 'login', 'register', or 'forgot'
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
 
   const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const validate = () => {
-    if (!isLogin && formData.username.trim().length < 3) return 'Username must be at least 3 characters.';
+    if (authMode !== 'login' && formData.username.trim().length < 3) return 'Username must be at least 3 characters.';
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return 'Please enter a valid email address.';
     if (formData.password.length < 6) return 'Password must be at least 6 characters.';
     return null;
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); setError('');
+    e.preventDefault(); setError(''); setSuccessMsg('');
     const validationError = validate();
     if (validationError) { setError(validationError); return; }
     setIsLoading(true);
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-    const payload = isLogin ? { email: formData.email, password: formData.password } : formData;
+
+    let endpoint = '';
+    let payload = {};
+
+    if (authMode === 'login') {
+      endpoint = '/api/auth/login';
+      payload = { email: formData.email, password: formData.password };
+    } else if (authMode === 'register') {
+      endpoint = '/api/auth/register';
+      payload = formData;
+    } else if (authMode === 'forgot') {
+      endpoint = '/api/auth/reset-password';
+      payload = { email: formData.email, username: formData.username, newPassword: formData.password };
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Authentication failed');
-      localStorage.setItem('cyberquest_token', data.token);
-      localStorage.setItem('cyberquest_user', JSON.stringify(data.user));
-      if (onLoginSuccess) onLoginSuccess(data.user);
+      
+      if (authMode === 'forgot') {
+         setSuccessMsg(data.message || 'Password successfully reset.');
+         setAuthMode('login');
+         setFormData({ username: '', email: '', password: '' });
+      } else {
+         localStorage.setItem('cyberquest_token', data.token);
+         localStorage.setItem('cyberquest_user', JSON.stringify(data.user));
+         if (onLoginSuccess) onLoginSuccess(data.user);
+      }
     } catch (err) { setError(err.message); } finally { setIsLoading(false); }
   };
 
@@ -122,10 +146,12 @@ const Auth = ({ onLoginSuccess }) => {
 
           <div style={{ marginBottom:32 }}>
             <h2 style={{ color: c.textPrimary, fontWeight:900, fontSize:28, letterSpacing:'-0.02em', margin:'0 0 8px' }}>
-              {isLogin ? 'SYSTEM LOGIN' : 'INITIATE ACCESS'}
+              {authMode === 'login' ? 'SYSTEM LOGIN' : authMode === 'register' ? 'INITIATE ACCESS' : 'RESET PASSCODE'}
             </h2>
             <p style={{ color: c.textSecondary, margin:0 }}>
-              {isLogin ? 'Welcome back, operative. Please authenticate.' : 'Create your operative profile to begin training.'}
+              {authMode === 'login' && 'Welcome back, operative. Please authenticate.'}
+              {authMode === 'register' && 'Create your operative profile to begin training.'}
+              {authMode === 'forgot' && 'Bypass security checks. Provide matching Email and Alias to initialize a new passcode.'}
             </p>
           </div>
 
@@ -136,8 +162,15 @@ const Auth = ({ onLoginSuccess }) => {
             </div>
           )}
 
+          {successMsg && (
+            <div style={{ marginBottom:20, display:'flex', alignItems:'center', gap:10, background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.35)', color:'#10b981', padding:'12px 16px', borderRadius:12 }}>
+              <Shield size={17} style={{ flexShrink:0 }} />
+              <span style={{ fontSize:13, fontWeight:500 }}>{successMsg}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
-            {!isLogin && (
+            {authMode !== 'login' && (
               <Field label="Operative Alias" icon={User} type="text" name="username"
                 placeholder="hacker_one" value={formData.username} {...fieldProps} />
             )}
@@ -145,7 +178,9 @@ const Auth = ({ onLoginSuccess }) => {
               placeholder="agent@cyberquest.com" value={formData.email} {...fieldProps} />
 
             <div style={{ marginBottom:18 }}>
-              <label style={{ display:'block', fontSize:11, fontWeight:900, color: c.textLabel, textTransform:'uppercase', letterSpacing:'0.15em', marginBottom:8 }}>Passcode</label>
+              <label style={{ display:'block', fontSize:11, fontWeight:900, color: c.textLabel, textTransform:'uppercase', letterSpacing:'0.15em', marginBottom:8 }}>
+                {authMode === 'forgot' ? 'New Passcode' : 'Passcode'}
+              </label>
               <div style={{ position:'relative' }}>
                 <div style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', color: c.textMuted }}><Lock size={17} /></div>
                 <input type="password" name="password" value={formData.password} onChange={handleChange}
@@ -153,26 +188,34 @@ const Auth = ({ onLoginSuccess }) => {
                   onFocus={e => e.target.style.borderColor = c.indigo}
                   onBlur={e => e.target.style.borderColor = c.border} />
               </div>
-              {!isLogin && formData.password.length > 0 && formData.password.length < 6 && (
+              {authMode !== 'login' && formData.password.length > 0 && formData.password.length < 6 && (
                 <p style={{ color:'#f59e0b', fontSize:12, marginTop:6 }}>Password must be at least 6 characters.</p>
               )}
             </div>
+
+            {authMode === 'login' && (
+                <div style={{ textAlign: 'right', marginTop: -8, marginBottom: 12 }}>
+                    <button type="button" onClick={() => { setAuthMode('forgot'); setError(''); setSuccessMsg(''); }} style={{ background: 'none', border: 'none', color: c.indigo, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                        Forgot Passcode?
+                    </button>
+                </div>
+            )}
 
             <button type="submit" disabled={isLoading}
               style={{ width:'100%', padding:'14px', borderRadius:14, border:'none', background:'linear-gradient(135deg,#4f46e5,#6366f1)', color:'white', fontWeight:900, fontSize:14, letterSpacing:'0.05em', cursor:isLoading?'not-allowed':'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8, marginTop:28, opacity:isLoading?0.7:1, boxShadow:'0 4px 20px rgba(79,70,229,0.35)', transition:'opacity 0.2s,transform 0.15s' }}
               onMouseEnter={e => { if(!isLoading) e.currentTarget.style.transform='scale(1.01)'; }}
               onMouseLeave={e => { e.currentTarget.style.transform='scale(1)'; }}>
-              {isLoading ? 'VERIFYING...' : (isLogin ? 'ACCESS MAINFRAME' : 'REGISTER PROFILE')}
+              {isLoading ? 'VERIFYING...' : (authMode === 'login' ? 'ACCESS MAINFRAME' : authMode === 'register' ? 'REGISTER PROFILE' : 'ENCRYPT NEW PASSCODE')}
               {!isLoading && <ArrowRight size={18} />}
             </button>
           </form>
 
           <div style={{ marginTop:28, paddingTop:24, borderTop:`1px solid ${c.border}`, textAlign:'center' }}>
             <button type="button"
-              onClick={() => { setIsLogin(!isLogin); setError(''); setFormData({ username:'', email:'', password:'' }); }}
+              onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setError(''); setSuccessMsg(''); setFormData({ username:'', email:'', password:'' }); }}
               style={{ background:'none', border:'none', cursor:'pointer', color: c.textSecondary, fontSize:13, fontWeight:500 }}>
-              {isLogin ? "Don't have clearance yet? " : "Already an operative? "}
-              <span style={{ color: c.indigo, fontWeight:700 }}>{isLogin ? 'Request Access' : 'Login Here'}</span>
+              {authMode === 'login' ? "Don't have clearance yet? " : "Already an operative? "}
+              <span style={{ color: c.indigo, fontWeight:700 }}>{authMode === 'login' ? 'Request Access' : 'Login Here'}</span>
             </button>
           </div>
         </div>

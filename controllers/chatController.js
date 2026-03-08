@@ -11,10 +11,9 @@ const handleChat = async (req, res) => {
 
         console.log(`🧠 CyberGuard received: "${userMessage}"`);
 
-        // We use the most basic, stable model call possible
-        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
-        // The Hacker Approach: Manually inject the rules into the string
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
         const combinedPrompt = `
 You are CyberGuard, an elite AI Security Copilot for CyberQuest.
 Always base your legal advice on the Indian IT Act 2000. Keep your answers under 80 words.
@@ -26,7 +25,7 @@ User Question: ${userMessage}
         const aiResponse = result.response.text();
 
         console.log("🤖 CyberGuard replied successfully!");
-        
+
         res.json({ reply: aiResponse });
 
     } catch (error) {

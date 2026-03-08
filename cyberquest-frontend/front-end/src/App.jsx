@@ -16,6 +16,8 @@ import ChatPage from './pages/Chatbot';
 import Challenges from './pages/Challenges';
 import Profile from './pages/Profile';
 import VaultIdScanner from './pages/VaultIdScan';
+import AttackSurface from './pages/AttackSurface';
+import IdentityTimeline from './pages/IdentityTimeline';
 
 const getValidUser = () => {
   const token = localStorage.getItem('cyberquest_token');
@@ -58,7 +60,7 @@ const HeaderBar = ({ user, onLogout }) => {
 
   useEffect(() => {
     const match = document.cookie.match(/googtrans=\/en\/([a-z]{2})/);
-    if (match) setCurrentLang(match[1]);
+    if (match) setTimeout(() => setCurrentLang(match[1]), 0);
   }, []);
 
   const changeLanguage = (lang) => {
@@ -173,6 +175,8 @@ function AppInner() {
         <Route path="/challenges" element={wrap(<Challenges />)} />
         <Route path="/profile"    element={wrap(<Profile />)} />
         <Route path="/vaultid"    element={wrap(<VaultIdScanner />)} />
+        <Route path="/attack-surface" element={wrap(<AttackSurface />)} />
+        <Route path="/identity-timeline" element={wrap(<IdentityTimeline />)} />
         <Route path="*"           element={<Navigate to={user ? '/dashboard' : '/'} />} />
       </Routes>
 

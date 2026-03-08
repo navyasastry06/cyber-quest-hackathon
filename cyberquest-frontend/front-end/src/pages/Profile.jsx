@@ -3,6 +3,7 @@ import { User, Mail, Zap, Shield, Trophy, Loader2, Terminal, Fingerprint, Trash2
 import API_BASE_URL from '../config';
 import { useColors } from '../context/useColors';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const getRankInfo = (xp) => {
   if (xp >= 5000) return { rank: 'Shadow Architect', color: '#a855f7', next: null, nextXp: null };
   if (xp >= 2000) return { rank: 'Zero-Day Hunter', color: '#ef4444', next: 'Shadow Architect', nextXp: 5000 };
@@ -20,7 +21,7 @@ const Profile = () => {
 
   useEffect(() => {
     const savedUser = localStorage.getItem('cyberquest_user');
-    if (!savedUser) { setLoading(false); return; }
+    if (!savedUser) { setTimeout(() => setLoading(false), 0); return; }
     const { email } = JSON.parse(savedUser);
     fetch(`${API_BASE_URL}/api/user/stats/${email}`)
       .then(r => r.ok ? r.json() : null)

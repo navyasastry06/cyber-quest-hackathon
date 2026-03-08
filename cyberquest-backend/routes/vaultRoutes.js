@@ -32,23 +32,26 @@ router.post('/scan', async (req, res) => {
 
         console.log(`[VaultID] Scanning incoming target: ${emailKey}`);
         
-        // ✅ 1. DNS MX Record Check (Does the domain actually exist and receive mail?)
+        // ✅ 1. DNS Entity Check (Does the domain actually exist via MX, A, or TXT records?)
         const domain = emailKey.split('@')[1];
         try {
-            const mxRecords = await dns.promises.resolveMx(domain);
-            if (!mxRecords || mxRecords.length === 0) throw new Error('No MX records');
+            await Promise.any([
+                dns.promises.resolveMx(domain),
+                dns.promises.resolve4(domain),
+                dns.promises.resolveTxt(domain)
+            ]);
         } catch (dnsError) {
             console.log(`[VaultID] DNS Lookup failed for ${domain}:`, dnsError.message);
             const failResult = {
                 trustScore: 0,
-                analysis: `Domain '${domain}' does not exist or has no active mail servers configured. This is a fake address.`
+                analysis: `Domain '${domain}' does not exist or has no active DNS records. This is a fake address.`
             };
             scanCache.set(emailKey, { result: failResult, cachedAt: Date.now() });
             return res.status(200).json(failResult);
         }
 
         const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-flash-latest',
             generationConfig: {
                 responseMimeType: 'application/json',
             }
@@ -59,10 +62,15 @@ router.post('/scan', async (req, res) => {
         
         Evaluate the following risk factors:
         1. Is it a free provider (e.g., gmail, yahoo) or a corporate domain?
-        2. Does it look like typosquatting (e.g., rnicrosoft.com instead of microsoft.com, or paypa1.com)?
+        2. Does it look like typosquatting (e.g., rnicrosoft.com instead of microsoft.com)?
         3. Are there suspicious strings of numbers or random characters?
+        4. Is it a legitimate marketing/event alias? (e.g., info@marketing.com, noreply@dare2compete.news, @unstop.com). Do not aggressively penalize legitimate business domains using .news or .info TLDs.
         
-        Based on your analysis, calculate a Trust Score from 0 to 100 (where 0 is a confirmed phishing attempt and 100 is perfectly safe).
+        Based on your analysis, calculate a highly granular Trust Score from 1 to 99 (do NOT just default to exactly 100 or 0). 
+        - Deduct a few minor points (e.g., -5 or -12) if it is a generic "noreply" or automated alias.
+        - Deduct points if the name looks slightly spammy, even if the domain is safe.
+        - 0-40 is a confirmed phishing attempt.
+        - 90-99 is highly trusted.
         
         Return the result using this exact JSON schema:
         {

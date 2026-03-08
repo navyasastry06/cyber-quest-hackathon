@@ -12,7 +12,7 @@ const handleChat = async (req, res) => {
         console.log(`🧠 CyberGuard received: "${userMessage}"`);
 
         // We use the most basic, stable model call possible
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         // The Hacker Approach: Manually inject the rules into the string
         const combinedPrompt = `
@@ -31,7 +31,7 @@ User Question: ${userMessage}
 
     } catch (error) {
         console.error("Gemini API Error:", error.message);
-        res.status(500).json({ error: "CyberGuard is currently offline." });
+        res.status(500).json({ error: `CyberGuard Offline: ${error.message}` });
     }
 };
 
