@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import emailsData from '../data/emails.json';
-import { AlertTriangle, CheckCircle, Mail, Terminal, Shield } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Mail, Terminal, Shield, HelpCircle, X } from 'lucide-react';
 import Lottie from 'lottie-react';
 import API_BASE_URL from '../config';
 import { useColors } from '../context/useColors';
@@ -23,6 +23,7 @@ const Simulator = () => {
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [completedEmails, setCompletedEmails] = useState(new Set());
+  const [showHelp, setShowHelp] = useState(false);
 
   const changeDifficulty = (diff) => {
     setCurrentDifficulty(diff);
@@ -93,14 +94,46 @@ const Simulator = () => {
           </div>
           <h1 style={{ fontSize:20, fontWeight:900, textTransform:'uppercase', letterSpacing:'-0.01em', color: c.textPrimary, margin:0 }}>Active Inbox Simulation</h1>
         </div>
-        <div style={{ background: c.bgElevated, border:`1px solid ${c.yellow}35`, padding:'12px 24px', borderRadius:14, display:'flex', alignItems:'center', gap:12 }}>
-          <Shield size={18} color={c.yellow} />
-          <div>
-            <p style={{ fontSize:9, fontWeight:900, color: c.yellow, textTransform:'uppercase', letterSpacing:'0.2em', margin:0 }}>Risk Score</p>
-            <p style={{ fontSize:22, fontWeight:900, color: c.textPrimary, margin:0, lineHeight:1.1 }}>{score}</p>
+        <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+          <button onClick={() => setShowHelp(true)} style={{ background: c.bgElevated, border:`1px solid ${c.border}`, borderRadius:14, padding:'10px', display:'flex', alignItems:'center', justifyContent:'center', color: c.textSecondary, cursor:'pointer', transition:'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = c.cyan} onMouseLeave={e => e.currentTarget.style.color = c.textSecondary}>
+            <HelpCircle size={22} />
+          </button>
+          <div style={{ background: c.bgElevated, border:`1px solid ${c.yellow}35`, padding:'12px 24px', borderRadius:14, display:'flex', alignItems:'center', gap:12 }}>
+            <Shield size={18} color={c.yellow} />
+            <div>
+              <p style={{ fontSize:9, fontWeight:900, color: c.yellow, textTransform:'uppercase', letterSpacing:'0.2em', margin:0 }}>Risk Score</p>
+              <p style={{ fontSize:22, fontWeight:900, color: c.textPrimary, margin:0, lineHeight:1.1 }}>{score}</p>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Help Modal */}
+      {showHelp && (
+        <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:60, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(4px)' }}>
+          <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:20, padding:'32px', maxWidth:500, width:'100%', position:'relative', boxShadow:'0 10px 40px rgba(0,0,0,0.2)' }}>
+            <button onClick={() => setShowHelp(false)} style={{ position:'absolute', top:20, right:20, background:'transparent', border:'none', color: c.textSecondary, cursor:'pointer' }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ fontSize:24, fontWeight:900, color: c.textPrimary, marginBottom:16, display:'flex', alignItems:'center', gap:10 }}>
+              <HelpCircle color={c.cyan} size={28} /> How to Play
+            </h2>
+            <div style={{ color: c.textSecondary, fontSize:15, lineHeight:1.7, display:'flex', flexDirection:'column', gap:12 }}>
+              <p>Welcome to the <strong>Virtual Inbox Simulation</strong>! Your objective is to identify phishing emails and separate them from legitimate ones.</p>
+              <ul style={{ paddingLeft:20, margin:0, display:'flex', flexDirection:'column', gap:8 }}>
+                <li>Select emails from the inbox on the left.</li>
+                <li>Carefully read the email subject, sender address, and body. Look for clues like urgency, suspicious links, or weird sender domains.</li>
+                <li>Choose <strong>Mark as Safe</strong> if the email is legitimate.</li>
+                <li>Choose <strong>Report Phishing</strong> if the email is a scam or attack.</li>
+              </ul>
+              <p>You earn XP for correct choices, and lose XP for incorrect ones. Higher difficulties give more XP. Good luck!</p>
+            </div>
+            <button onClick={() => setShowHelp(false)} style={{ width:'100%', marginTop:24, padding:'12px', background: c.cyan, color:'#000', borderRadius:12, border:'none', fontWeight:900, cursor:'pointer' }}>
+              Got it!
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main split */}
       <div style={{ flex:1, display:'flex', gap:16, overflow:'hidden', minHeight:0 }}>

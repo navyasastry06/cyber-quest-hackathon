@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Zap, Target, ChevronRight, CheckCircle2, AlertTriangle, Code2, Shield, Eye, Search, Loader2 } from 'lucide-react';
+import { Trophy, Zap, Target, ChevronRight, CheckCircle2, AlertTriangle, Code2, Shield, Eye, Search, Loader2, HelpCircle, X } from 'lucide-react';
 import Lottie from 'lottie-react';
 import API_BASE_URL from '../config';
 import { useColors } from '../context/useColors';
@@ -30,6 +30,7 @@ const Challenges = () => {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [questionsAnsweredInLevel, setQuestionsAnsweredInLevel] = useState(0);
   const [levelCompleted, setLevelCompleted] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   
   // Question State
   const [currentQ, setCurrentQ] = useState(null);
@@ -107,6 +108,9 @@ const Challenges = () => {
           </div>
           {activeChallenge ? (
             <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+              <button onClick={() => setShowHelp(true)} style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:14, padding:'10px', display:'flex', alignItems:'center', justifyContent:'center', color: c.textSecondary, cursor:'pointer', transition:'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = c.cyan} onMouseLeave={e => e.currentTarget.style.color = c.textSecondary}>
+                <HelpCircle size={22} />
+              </button>
               <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:14, padding:'10px 20px', display:'flex', alignItems:'center', gap:8 }}>
                 <Zap size={16} color={c.yellow} />
                 <span style={{ color: c.textPrimary, fontWeight:900, fontSize:15 }}>{sessionScore} XP</span>
@@ -118,6 +122,9 @@ const Challenges = () => {
             </div>
           ) : (
             <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <button onClick={() => setShowHelp(true)} style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:10, padding:'8px', display:'flex', alignItems:'center', justifyContent:'center', color: c.textSecondary, cursor:'pointer' }} onMouseEnter={e => e.currentTarget.style.color = c.cyan} onMouseLeave={e => e.currentTarget.style.color = c.textSecondary}>
+                <HelpCircle size={18} />
+              </button>
               <span style={{ color: c.textSecondary, fontSize:13, fontWeight:700 }}>Difficulty:</span>
               <select 
                 value={currentLevel}
@@ -131,6 +138,32 @@ const Challenges = () => {
             </div>
           )}
         </div>
+
+        {/* Help Modal */}
+        {showHelp && (
+          <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:60, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(4px)' }}>
+            <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:20, padding:'32px', maxWidth:500, width:'100%', position:'relative', boxShadow:'0 10px 40px rgba(0,0,0,0.2)' }}>
+              <button onClick={() => setShowHelp(false)} style={{ position:'absolute', top:20, right:20, background:'transparent', border:'none', color: c.textSecondary, cursor:'pointer' }}>
+                <X size={24} />
+              </button>
+              <h2 style={{ fontSize:24, fontWeight:900, color: c.textPrimary, marginBottom:16, display:'flex', alignItems:'center', gap:10 }}>
+                <HelpCircle color={c.cyan} size={28} /> Training Arena Guide
+              </h2>
+              <div style={{ color: c.textSecondary, fontSize:15, lineHeight:1.7, display:'flex', flexDirection:'column', gap:12 }}>
+                <p>Welcome to the <strong>Training Arena</strong>! Here you can sharpen your cybersecurity skills.</p>
+                <ul style={{ paddingLeft:20, margin:0, display:'flex', flexDirection:'column', gap:8 }}>
+                  <li>Choose your desired difficulty: <strong>Easy</strong>, <strong>Medium</strong>, or <strong>Hard</strong>.</li>
+                  <li>Select a challenge category: Threat Quiz, Code Auditor, or Log Detective.</li>
+                  <li>Answer the provided questions or complete the tasks to gain XP.</li>
+                  <li>Each level consists of multiple challenges. Reach the end to complete the session!</li>
+                </ul>
+              </div>
+              <button onClick={() => setShowHelp(false)} style={{ width:'100%', marginTop:24, padding:'12px', background: c.cyan, color:'#000', borderRadius:12, border:'none', fontWeight:900, cursor:'pointer' }}>
+                Start Training!
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Challenge card grid */}
         {!activeChallenge && (
