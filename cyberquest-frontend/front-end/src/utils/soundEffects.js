@@ -18,7 +18,7 @@ export const playCorrectSound = () => {
     gain.connect(ctx.destination);
     
     osc.type = 'sine';
-    // Small pleasant chime: C5 up to E5
+    
     osc.frequency.setValueAtTime(523.25, ctx.currentTime); 
     osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.1);
     
@@ -41,7 +41,7 @@ export const playWrongSound = () => {
     gain.connect(ctx.destination);
     
     osc.type = 'sawtooth';
-    // Low buzz
+    
     osc.frequency.setValueAtTime(150, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.25);
     
@@ -58,7 +58,7 @@ export const playTimeUpSound = () => {
   try {
     const ctx = getAudioContext();
     
-    // Play two descending alarm tones
+    
     const playTone = (startTime) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();

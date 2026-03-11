@@ -36,7 +36,7 @@ const VaultIdScanner = () => {
     <div style={{ minHeight:'100%', background: c.bgPage, padding:'32px 36px', fontFamily:'inherit', transition:'background 0.25s' }}>
       <div style={{ maxWidth: 780, margin: '0 auto' }}>
 
-        {/* Header */}
+        {}
         <div style={{ marginBottom: 36 }}>
           <div style={{ display:'flex', alignItems:'center', gap:8, color: c.cyan, marginBottom: 8 }}>
             <Terminal size={14} />
@@ -46,7 +46,7 @@ const VaultIdScanner = () => {
           <p style={{ color: c.textSecondary, margin:0 }}>AI-powered email reputation analysis. Know who is behind every message.</p>
         </div>
 
-        {/* Scan form */}
+        {}
         <form onSubmit={handleScan} style={{ marginBottom: 28 }}>
           <div style={{ display:'flex', gap:12 }}>
             <div style={{ flex:1, position:'relative' }}>
@@ -63,7 +63,7 @@ const VaultIdScanner = () => {
           </div>
         </form>
 
-        {/* Scanning animation */}
+        {}
         {isScanning && (
           <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:20, padding:40, textAlign:'center' }}>
             <div style={{ width:60, height:60, borderRadius:'50%', border:`3px solid ${c.cyan}`, borderTopColor:'transparent', margin:'0 auto 20px', animation:'spin 0.8s linear infinite' }} />
@@ -71,7 +71,7 @@ const VaultIdScanner = () => {
           </div>
         )}
 
-        {/* Result */}
+        {}
         {scanResult && !isScanning && (
           scanResult.error ? (
             <div style={{ background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:20, padding:28, display:'flex', alignItems:'flex-start', gap:14 }}>
@@ -83,7 +83,7 @@ const VaultIdScanner = () => {
             </div>
           ) : (
             <div style={{ background: c.bgCard, border:`1px solid ${isThreat ? 'rgba(239,68,68,0.4)' : 'rgba(16,185,129,0.4)'}`, borderRadius:20, overflow:'hidden', boxShadow: c.isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)' }}>
-              {/* Result header */}
+              {}
               <div style={{ padding:'20px 28px', background: isThreat ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', display:'flex', alignItems:'center', gap:14, borderBottom:`1px solid ${c.border}` }}>
                 <div style={{ width:48, height:48, borderRadius:'50%', background: isThreat ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)', border:`2px solid ${isThreat?'#ef4444':'#10b981'}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
                   {isThreat ? <AlertTriangle size={24} color="#ef4444" /> : <ShieldCheck size={24} color="#10b981" />}
@@ -95,14 +95,14 @@ const VaultIdScanner = () => {
                   </h2>
                 </div>
               </div>
-              {/* Analysis */}
+              {}
               <div style={{ padding:'20px 28px', display:'flex', gap:24, flexWrap:'wrap' }}>
                 <div style={{ flex:1, minWidth:250 }}>
                   <p style={{ fontSize:10, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.2em', color: c.textMuted, marginBottom:8 }}>AI Analysis</p>
                   <p style={{ color: c.textPrimary, fontSize:14, lineHeight:1.7, margin:0 }}>{scanResult.analysis}</p>
                 </div>
                 
-                {/* Lottie Error Animation Integration */}
+                {}
                 {isThreat && (
                   <div style={{ width:120, height:120, flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', opacity:0.9 }}>
                     <Lottie animationData={sadBotAnim} loop={true} />
@@ -113,7 +113,7 @@ const VaultIdScanner = () => {
           )
         )}
 
-        {/* Placeholder */}
+        {}
         {!scanResult && !isScanning && (
           <div style={{ background: c.bgCard, border:`2px dashed ${c.border}`, borderRadius:20, padding:'48px 32px', textAlign:'center' }}>
             <Search size={36} color={c.textMuted} style={{ marginBottom:14 }} />

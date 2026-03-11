@@ -28,7 +28,7 @@ const Sidebar = () => {
       transition: 'background 0.25s, color 0.25s, border-color 0.25s',
     }}>
 
-      {/* Brand */}
+      {}
       <div style={{ padding: '20px 20px 16px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: `1px solid ${c.sidebarBorder}` }}>
         <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(135deg,#4f46e5,#06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 15px rgba(79,70,229,0.35)', flexShrink: 0 }}>
           <Shield size={20} color="white" />
@@ -39,7 +39,7 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Nav */}
+      {}
       <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
         <p style={{ color: c.textMuted, fontWeight: 900, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.2em', padding: '8px 10px 4px', margin: 0 }}>Modules</p>
         {NAV_ITEMS.map(({ to, icon, label }) => {
@@ -69,7 +69,7 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* Footer */}
+      {}
       <div style={{ padding: 12, borderTop: `1px solid ${c.sidebarBorder}` }}>
         <div style={{ background: c.bgHover, border: `1px solid ${c.border}`, borderRadius: 12, padding: '10px 14px', textAlign: 'center' }}>
           <p style={{ color: c.textMuted, fontWeight: 900, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.18em', margin: '0 0 4px' }}>System Status</p>

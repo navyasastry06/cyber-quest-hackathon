@@ -3,7 +3,7 @@ import { User, Mail, Zap, Shield, Trophy, Loader2, Terminal, Fingerprint, Trash2
 import API_BASE_URL from '../config';
 import { useColors } from '../context/useColors';
 
-// eslint-disable-next-line react-refresh/only-export-components
+
 export const getRankInfo = (xp) => {
   if (xp >= 5000) return { rank: 'Shadow Architect', color: '#a855f7', next: null, nextXp: null };
   if (xp >= 2000) return { rank: 'Zero-Day Hunter', color: '#ef4444', next: 'Shadow Architect', nextXp: 5000 };
@@ -89,7 +89,7 @@ const Profile = () => {
       )}
 
       <div style={{ maxWidth:900, margin:'0 auto' }}>
-        {/* Header */}
+        {}
         <div style={{ marginBottom:32 }}>
           <div style={{ display:'flex', alignItems:'center', gap:6, color: c.cyan, marginBottom:8 }}>
             <Terminal size={13} /><span style={{ fontSize:10, fontWeight:900, textTransform:'uppercase', letterSpacing:'0.25em' }}>Operative File</span>
@@ -97,7 +97,7 @@ const Profile = () => {
           <h1 style={{ fontSize:'clamp(1.8rem,4vw,2.8rem)', fontWeight:900, textTransform:'uppercase', color: c.textPrimary, margin:0 }}>Agent Profile</h1>
         </div>
 
-        {/* Identity card */}
+        {}
         <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:24, padding:'28px 32px', marginBottom:24, display:'flex', alignItems:'center', gap:24, boxShadow: c.isDark?'none':'0 2px 12px rgba(0,0,0,0.06)' }}>
           <div style={{ width:72, height:72, borderRadius:20, background:`linear-gradient(135deg,${c.indigo},${c.cyan})`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow:`0 0 24px ${c.indigo}40` }}>
             <Fingerprint size={36} color="white" />
@@ -118,7 +118,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Rank progress */}
+        {}
         {rankInfo.nextXp && (
           <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:20, padding:'20px 28px', marginBottom:24 }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:10 }}>
@@ -131,14 +131,14 @@ const Profile = () => {
           </div>
         )}
 
-        {/* Stats grid */}
+        {}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:32 }}>
           {statCard(Zap,    c.yellow,  'Total XP',   stats?.total_xp || 0)}
           {statCard(Shield, c.green,   'Threats Caught', stats?.phishing_detected || 0)}
           {statCard(Trophy, c.indigo,  'Accuracy',   `${accuracy}%`)}
         </div>
 
-        {/* Danger zone */}
+        {}
         <div style={{ background:'rgba(239,68,68,0.05)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:20, padding:'24px 28px' }}>
           <h3 style={{ color:'#ef4444', fontWeight:900, fontSize:14, textTransform:'uppercase', letterSpacing:'0.15em', margin:'0 0 8px', display:'flex', alignItems:'center', gap:8 }}>
             <Trash2 size={16} /> Danger Zone

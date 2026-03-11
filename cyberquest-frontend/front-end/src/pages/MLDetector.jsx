@@ -3,6 +3,7 @@ import Lottie from 'lottie-react';
 import happyRobotAnim from '../assets/happy-robot.json';
 import sadbotAnim from '../assets/sadbot.json';
 import { ML_API_BASE_URL } from '../config';
+import { HelpCircle, X, ShieldAlert } from 'lucide-react';
 
 export default function MLDetector() {
 
@@ -13,6 +14,7 @@ export default function MLDetector() {
   const [alerts, setAlerts] = useState([]);
   const [revealed, setRevealed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   const generateAttack = async () => {
     setIsLoading(true);
@@ -93,11 +95,58 @@ export default function MLDetector() {
 
   return (
 
-    <div className="p-8">
+    <div className="p-8 relative">
 
-      <h1 className="text-3xl font-bold mb-6">
-        AI Intrusion Detection
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <ShieldAlert className="text-blue-500" size={32} /> AI Intrusion Detection
+        </h1>
+        <button 
+          onClick={() => setShowHelp(true)} 
+          className="bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-blue-400 p-2 rounded-full transition-colors"
+        >
+          <HelpCircle size={24} />
+        </button>
+      </div>
+
+      {}
+      {showHelp && (
+        <div className="fixed inset-0 flex items-center justify-center z-[100] bg-black/70 backdrop-blur-sm">
+          <div className="bg-gray-800 border border-gray-700 rounded-2xl p-8 max-w-lg w-full relative shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+            <button 
+              onClick={() => setShowHelp(false)} 
+              className="absolute top-4 right-4 text-gray-400 hover:text-white"
+            >
+              <X size={24} />
+            </button>
+            <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+              <HelpCircle className="text-blue-400" size={28} /> How to Play
+            </h2>
+            <div className="text-gray-300 text-[15px] space-y-4">
+              <p>Welcome to the <strong>SOC Intrusion Detection</strong>! Your goal is to analyze raw network traffic and predict the type of cyber attack happening.</p>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>Click <strong>Generate Attack</strong> to simulate incoming network traffic.</li>
+                <li>Analyze the network parameters (Failed Logins, Error Rates, Bytes Transferred).</li>
+                <li>Guess the attack type:
+                  <ul className="list-none pl-4 mt-2 space-y-1 text-[13px] bg-gray-900/50 p-2 rounded border border-gray-700">
+                    <li><strong className="text-red-400">DoS:</strong> Denial of Service (High traffic volume)</li>
+                    <li><strong className="text-yellow-400">Probe:</strong> Network Scanning (Small connections)</li>
+                    <li><strong className="text-purple-400">R2L:</strong> Remote to Local (Failed logins)</li>
+                    <li><strong className="text-pink-400">U2R:</strong> User to Root (Privilege escalation)</li>
+                  </ul>
+                </li>
+                <li>If you guess correctly, you earn XP and our AI will explain the attack!</li>
+              </ul>
+            </div>
+            <button 
+              onClick={() => setShowHelp(false)} 
+              className="w-full mt-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
+            >
+              Understood!
+            </button>
+          </div>
+        </div>
+      )}
 
       <button
         onClick={generateAttack}
@@ -109,7 +158,7 @@ export default function MLDetector() {
 
       <div className="grid grid-cols-2 gap-8">
 
-        {/* LEFT PANEL */}
+        {}
 
         <div className="bg-gray-800 text-white p-6 rounded-lg shadow">
 
@@ -142,7 +191,7 @@ export default function MLDetector() {
 
         </div>
 
-        {/* RIGHT PANEL */}
+        {}
 
         <div className="bg-gray-900 text-white p-6 rounded-lg shadow">
 
@@ -160,7 +209,7 @@ export default function MLDetector() {
 
           </div>
 
-          {/* SHOW RESULT ONLY AFTER GUESS */}
+          {}
 
           {revealed && data && (
 
@@ -196,7 +245,7 @@ export default function MLDetector() {
 
       </div>
 
-      {/* SOC FEED */}
+      {}
 
       <div className="mt-8 bg-black text-green-400 p-6 rounded-lg font-mono">
 

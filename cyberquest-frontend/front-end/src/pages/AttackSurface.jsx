@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useColors } from '../context/useColors';
 import API_BASE_URL from '../config';
 import { playCorrectSound, playWrongSound, playTimeUpSound } from '../utils/soundEffects';
-import { Shield, Server, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Shield, Server, AlertTriangle, CheckCircle, HelpCircle, X } from 'lucide-react';
 
 const VULNERABILITIES = [
   { id: 'port_open', label: 'Open Port 22 Detected', fix: 'Close Port' },
@@ -22,12 +22,13 @@ const AttackSurface = () => {
   const [showShake, setShowShake] = useState(false);
   const [hasFinished, setHasFinished] = useState(false);
   const [scoreSaved, setScoreSaved] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   
-  // Array of 9 servers
+  
   const [servers, setServers] = useState(Array(9).fill({ isVulnerable: false, vulnType: null, timer: 0 }));
   const [selectedServer, setSelectedServer] = useState(null);
 
-  // Main game loop for ticking time
+  
   useEffect(() => {
     let timer;
     if (isPlaying && timeLeft > 0) {
@@ -45,7 +46,7 @@ const AttackSurface = () => {
     return () => clearInterval(timer);
   }, [isPlaying, timeLeft]);
 
-  // Save score to backend when game finishes
+  
   useEffect(() => {
     if (!isPlaying && timeLeft === 0 && score > 0 && !scoreSaved) {
       setTimeout(() => setScoreSaved(true), 0);
@@ -78,7 +79,7 @@ const AttackSurface = () => {
     }
   }, [isPlaying, timeLeft, score, scoreSaved]);
 
-  // Main game loop for spawning vulnerabilities
+  
   useEffect(() => {
     let spawner;
     if (isPlaying) {
@@ -86,10 +87,10 @@ const AttackSurface = () => {
         setServers(prev => {
           const newServers = [...prev];
           
-          // Count active vulnerabilities
+          
           const activeCount = newServers.filter(s => s.isVulnerable).length;
           
-          // Spawn new vulnerability if less than 3 active
+          
           if (activeCount < 3 && Math.random() > 0.4) {
             const availableIndexes = newServers.map((s, i) => s.isVulnerable ? -1 : i).filter(i => i !== -1);
             if (availableIndexes.length > 0) {
@@ -104,12 +105,12 @@ const AttackSurface = () => {
             }
           }
           
-          // Penalize for unhandled vulnerabilities (alive for > 5 seconds)
+          
           let penalty = 0;
           const currentTime = Date.now();
           for (let i = 0; i < newServers.length; i++) {
              if (newServers[i].isVulnerable && (currentTime - newServers[i].spawnTime > 5000)) {
-                 // Remove it and penalize
+                 
                  newServers[i] = { isVulnerable: false, vulnType: null };
                  penalty += 5;
              }
@@ -152,12 +153,12 @@ const AttackSurface = () => {
     const server = servers[selectedServer];
     
     if (server.vulnType.fix === action) {
-      // Correct action
+      
       playCorrectSound();
       setScore(s => s + 10);
       setNetworkHealth(h => Math.min(100, h + 2));
       
-      // Heal server
+      
       setServers(prev => {
         const next = [...prev];
         next[selectedServer] = { isVulnerable: false, vulnType: null };
@@ -165,7 +166,7 @@ const AttackSurface = () => {
       });
       setSelectedServer(null);
     } else {
-      // Wrong action
+      
       playWrongSound();
       setScore(s => Math.max(0, s - 5));
       setNetworkHealth(h => Math.max(0, h - 5));
@@ -238,19 +239,56 @@ const AttackSurface = () => {
       )}
 
       <div style={{ padding: '24px 32px', maxWidth: 1000, margin: '0 auto', color: c.textPrimary, animation: showShake ? 'shake 0.5s ease-in-out' : 'none' }}>
-        <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 900, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Shield color={c.indigo} size={32} />
-          Attack Surface Management
-        </h1>
-        <p style={{ color: c.textSecondary, margin: 0 }}>
-          Identify exposures in your network and apply the correct mitigation before attackers exploit them. (Based on CrowdStrike CTEM)
-        </p>
-      </div>
+        <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h1 style={{ fontSize: 28, fontWeight: 900, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Shield color={c.indigo} size={32} />
+              Attack Surface Management
+            </h1>
+            <p style={{ color: c.textSecondary, margin: 0 }}>
+              Identify exposures in your network and apply the correct mitigation before attackers exploit them. (Based on CrowdStrike CTEM)
+            </p>
+          </div>
+          <button onClick={() => setShowHelp(true)} style={{ background: c.bgElevated, border:`1px solid ${c.border}`, borderRadius:14, padding:'10px', display:'flex', alignItems:'center', justifyContent:'center', color: c.textSecondary, cursor:'pointer', transition:'all 0.2s', flexShrink: 0 }} onMouseEnter={e => e.currentTarget.style.color = c.cyan} onMouseLeave={e => e.currentTarget.style.color = c.textSecondary}>
+            <HelpCircle size={22} />
+          </button>
+        </div>
+
+      {}
+      {showHelp && (
+        <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:60, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(4px)' }}>
+          <div style={{ background: c.cardBg, border:`1px solid ${c.border}`, borderRadius:20, padding:'32px', maxWidth:500, width:'100%', position:'relative', boxShadow:'0 10px 40px rgba(0,0,0,0.2)' }}>
+            <button onClick={() => setShowHelp(false)} style={{ position:'absolute', top:20, right:20, background:'transparent', border:'none', color: c.textSecondary, cursor:'pointer' }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ fontSize:24, fontWeight:900, color: c.textPrimary, marginBottom:16, display:'flex', alignItems:'center', gap:10 }}>
+              <HelpCircle color={c.cyan} size={28} /> How to Play
+            </h2>
+            <div style={{ color: c.textSecondary, fontSize:15, lineHeight:1.7, display:'flex', flexDirection:'column', gap:10 }}>
+              <p style={{ margin:0 }}>Welcome to <strong>Attack Surface Management</strong>! Secure vulnerable servers before time runs out.</p>
+              <ul style={{ paddingLeft:20, margin:0, display:'flex', flexDirection:'column', gap:6 }}>
+                <li>Watch for grid nodes to turn red with an <AlertTriangle size={14} color="#ef4444" style={{display:'inline', verticalAlign:'text-bottom'}}/> icon.</li>
+                <li><strong>Click</strong> the vulnerable server and quickly apply the correct mitigation:
+                  <ul style={{ paddingLeft:20, marginTop:4, display:'flex', flexDirection:'column', gap:4, fontSize:13, background:c.bgElevated, padding:'8px 12px 8px 24px', borderRadius:8, border:`1px solid ${c.border}` }}>
+                    <li><strong style={{color: '#ef4444'}}>Open Port 22 Detected:</strong> <span>Close Port</span></li>
+                    <li><strong style={{color: '#ef4444'}}>Critical OS Patch Missing:</strong> <span>Apply Patch</span></li>
+                    <li><strong style={{color: '#ef4444'}}>Admin Login without MFA:</strong> <span>Enforce MFA</span></li>
+                    <li><strong style={{color: '#ef4444'}}>Public S3 Bucket Exposed:</strong> <span>Make Private</span></li>
+                  </ul>
+                </li>
+                <li>Securing nodes quickly earns XP. Ignoring them drops network health!</li>
+              </ul>
+            </div>
+            <button onClick={() => setShowHelp(false)} style={{ width:'100%', marginTop:24, padding:'12px', background: c.indigo, color:'white', borderRadius:12, border:'none', fontWeight:900, cursor:'pointer' }}>
+              Got it!
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: 24 }}>
         
-        {/* Left Panel: Status & Controls */}
+        {}
         <div style={{ background: c.cardBg, border: `1px solid ${c.border}`, borderRadius: 16, padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
           
           <div style={{ textAlign: 'center' }}>
@@ -290,10 +328,10 @@ const AttackSurface = () => {
           )}
         </div>
 
-        {/* Right Panel: Grid & Actions */}
+        {}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             
-            {/* The Network Grid */}
+            {}
             <div style={{ 
                 background: c.cardBg, border: `1px solid ${c.border}`, borderRadius: 16, padding: 32,
                 display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, flex: 1
@@ -323,7 +361,7 @@ const AttackSurface = () => {
                 ))}
             </div>
 
-            {/* Action Panel (Shows when a vulnerable server is clicked) */}
+            {}
             <div style={{ 
                 background: c.cardBg, border: `1px solid ${c.border}`, borderRadius: 16, padding: 24,
                 minHeight: 120, display: 'flex', alignItems: 'center', justifyContent: 'center'

@@ -27,7 +27,7 @@ print("\nClassification Report:\n")
 print(classification_report(y_test, pred))
 import joblib
 
-# Save model
+
 joblib.dump(model, "intrusion_model.pkl")
 
 print("\nModel saved as intrusion_model.pkl")

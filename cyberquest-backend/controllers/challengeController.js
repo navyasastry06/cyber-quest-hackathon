@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const pool = require('../config/db');
 
-// Path to the frontend data directory
+
 const dataDir = path.join(__dirname, '../../cyberquest-frontend/front-end/src/data');
 
 const getChallengeList = (req, res) => {
@@ -13,7 +13,7 @@ const getChallengeList = (req, res) => {
     ]);
 };
 
-// Helper to load the right JSON file
+
 const loadQuestions = (type) => {
     let filename = '';
     if (type === 'Threat Quiz') filename = 'quiz.json';
@@ -37,16 +37,16 @@ const generateQuestion = (req, res) => {
         const categoryQuestions = loadQuestions(type);
         if (!categoryQuestions) return res.status(400).json({ error: 'Invalid challenge type or data missing' });
         
-        // Loop levels if user exceeds max defined levels
+        
         const levelIndex = (level - 1) % categoryQuestions.length;
         const levelData = categoryQuestions[levelIndex];
         
-        // Loop index if user exceeds questions in that level
+        
         const qIndex = index % levelData.length;
         
         const q = levelData[qIndex];
 
-        // Return the question and options, but NOT the correct answer or explanation
+        
         res.json({ question: q.question, options: q.options });
     } catch (err) {
         console.error("Fetch Data Error:", err.message);
@@ -80,7 +80,7 @@ const submitAnswer = async (req, res) => {
         
         const xpEarned = correct ? Math.round(baseXP * multiplier) : 0;
         
-        // Add XP to user profile
+        
         if (correct) {
             await pool.query(
                 `UPDATE users SET total_xp = total_xp + $1, challenges_completed = challenges_completed + 1 WHERE email = $2`,

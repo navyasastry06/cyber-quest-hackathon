@@ -23,7 +23,7 @@ const TERMINAL_LINES = [
   { prefix: '$', text: 'run challenges --mode code-audit', color: '#10b981' },
 ];
 
-// Theme toggle — reuses CSS class from index.css
+
 const HomeThemeToggle = () => {
   const { isDark, toggle } = useTheme();
   return (
@@ -41,30 +41,30 @@ const Home = () => {
   const [visibleLines, setVisibleLines] = useState(1);
   const [blink, setBlink] = useState(true);
 
-  // ── Dynamic palette based on current theme ──────────────────────────
+  
   const C = {
-    // Page & card backgrounds
+    
     pageBg: isDark ? 'linear-gradient(160deg,#0d1020 0%,#0b1628 40%,#0d0b20 100%)'
       : 'linear-gradient(160deg,#e8f0ff 0%,#f0f4ff 40%,#e8eeff 100%)',
     cardBg: isDark ? '#0a0d16' : '#ffffff',
     elevated: isDark ? '#111827' : '#f1f5f9',
     border: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.09)',
-    // Text
+    
     textHero: isDark ? '#ffffff' : '#0f172a',
     textBody: isDark ? '#94a3b8' : '#475569',
     textMuted: isDark ? '#475569' : '#94a3b8',
     textDim: isDark ? '#374151' : '#94a3b8',
-    // Terminal
+    
     termBg: isDark ? '#0a0d16' : '#1e2030',
     termBar: isDark ? '#111827' : '#161927',
-    // Glows
+    
     glowL: isDark
       ? 'radial-gradient(circle,rgba(99,102,241,0.13) 0%,transparent 70%)'
       : 'radial-gradient(circle,rgba(99,102,241,0.09) 0%,transparent 70%)',
     glowR: isDark
       ? 'radial-gradient(circle,rgba(6,182,212,0.1) 0%,transparent 70%)'
       : 'radial-gradient(circle,rgba(6,182,212,0.07) 0%,transparent 70%)',
-    // footer text
+    
     accent: '#6366f1',
   };
 
@@ -83,20 +83,20 @@ const Home = () => {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, overflowY: 'auto', fontFamily: 'inherit', background: C.pageBg, transition: 'background 0.4s ease' }}>
 
-      {/* Grid overlay */}
+      {}
       <div style={{
         position: 'fixed', inset: 0, pointerEvents: 'none',
         backgroundImage: `linear-gradient(${C.border} 1px,transparent 1px),linear-gradient(90deg,${C.border} 1px,transparent 1px)`,
         backgroundSize: '60px 60px'
       }} />
 
-      {/* Glow accents */}
+      {}
       <div style={{ position: 'fixed', top: '-200px', left: '-100px', width: '600px', height: '600px', borderRadius: '50%', pointerEvents: 'none', background: C.glowL }} />
       <div style={{ position: 'fixed', bottom: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', pointerEvents: 'none', background: C.glowR }} />
 
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 24px', position: 'relative', zIndex: 10 }}>
 
-        {/* ── NAV ── */}
+        {}
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '80px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg,#4f46e5,#06b6d4)', boxShadow: '0 0 20px rgba(79,70,229,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -107,7 +107,7 @@ const Home = () => {
               <p style={{ color: '#6366f1', fontWeight: 700, fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', margin: 0 }}>Security Training</p>
             </div>
           </div>
-          {/* Toggle + Login */}
+          {}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <HomeThemeToggle />
             <div style={{ width: 1, height: 20, background: C.border }} />
@@ -120,10 +120,10 @@ const Home = () => {
           </div>
         </nav>
 
-        {/* ── HERO ── */}
+        {}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center', marginBottom: '96px' }}>
 
-          {/* LEFT */}
+          {}
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, border: '1px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.1)', color: '#818cf8', fontSize: 11, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 32 }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366f1', animation: 'pulse 2s infinite' }} />
@@ -155,7 +155,7 @@ const Home = () => {
             </div>
           </div>
 
-          {/* RIGHT — Terminal */}
+          {}
           <div style={{ position: 'relative' }}>
             <div style={{ position: 'absolute', inset: 0, borderRadius: 24, background: 'radial-gradient(ellipse,rgba(99,102,241,0.2) 0%,transparent 70%)', filter: 'blur(20px)', zIndex: -1 }} />
             <div style={{ borderRadius: 20, overflow: 'hidden', border: `1px solid ${C.border}`, boxShadow: '0 30px 70px rgba(0,0,0,0.5)', background: C.termBg, transition: 'background 0.3s, border-color 0.3s' }}>
@@ -181,7 +181,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* ── STATS ── */}
+        {}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: '96px' }}>
           {[
             { val: '6+', label: 'Training Modules', color: '#6366f1' },
@@ -196,7 +196,7 @@ const Home = () => {
           ))}
         </div>
 
-        {/* ── FEATURES ── */}
+        {}
         <div style={{ marginBottom: '96px' }}>
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <p style={{ color: '#6366f1', fontWeight: 900, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.25em', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
@@ -224,7 +224,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* ── CTA ── */}
+        {}
         <div style={{ textAlign: 'center', padding: '80px 24px', borderRadius: 28, marginBottom: 48, background: `linear-gradient(135deg,rgba(79,70,229,0.12) 0%,rgba(6,182,212,0.06) 100%)`, border: `1px solid rgba(99,102,241,0.2)`, position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 0%,rgba(99,102,241,0.18) 0%,transparent 60%)', pointerEvents: 'none' }} />
           <h2 style={{ color: C.textHero, fontWeight: 900, letterSpacing: '-0.02em', fontSize: 'clamp(1.8rem,3.5vw,3rem)', marginBottom: 16, position: 'relative', transition: 'color 0.3s' }}>

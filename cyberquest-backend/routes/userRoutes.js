@@ -3,11 +3,11 @@ const router = express.Router();
 const pool = require('../config/db');
 const { verifyToken } = require('../middleware/authMiddleware');
 
-// 1. UPDATE XP & METRICS — protected by JWT
+
 router.patch('/update-xp', verifyToken, async (req, res) => {
     const { email, xpGain, wasCorrect, isPhishing, isChallenge } = req.body;
 
-    // ✅ Input validation
+    
     if (!email || typeof email !== 'string') {
         return res.status(400).json({ error: 'A valid email is required.' });
     }
@@ -40,7 +40,7 @@ router.patch('/update-xp', verifyToken, async (req, res) => {
     }
 });
 
-// 2. STATS for dashboard — public
+
 router.get('/stats/:email', async (req, res) => {
     try {
         const result = await pool.query(
@@ -55,7 +55,7 @@ router.get('/stats/:email', async (req, res) => {
     }
 });
 
-// 3. LEADERBOARD — public
+
 router.get('/leaderboard', async (req, res) => {
     try {
         const result = await pool.query('SELECT username, total_xp FROM users ORDER BY total_xp DESC LIMIT 5');
@@ -66,7 +66,7 @@ router.get('/leaderboard', async (req, res) => {
     }
 });
 
-// 4. DELETE account — protected by JWT
+
 router.delete('/delete', verifyToken, async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email required' });

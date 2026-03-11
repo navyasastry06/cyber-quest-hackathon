@@ -4,7 +4,7 @@ import Lottie from 'lottie-react';
 import API_BASE_URL from '../config';
 import { useColors } from '../context/useColors';
 
-// Import our new Lottie animations
+
 import happyRobotAnim from '../assets/happy-robot.json';
 import confettiAnim from '../assets/confetti.json';
 import sadbotAnim from '../assets/sadbot.json';
@@ -20,19 +20,19 @@ const QUESTIONS_PER_LEVEL = 5;
 const Challenges = () => {
   const c = useColors();
   
-  // Arena State
+  
   const [activeChallenge, setActiveChallenge] = useState(null);
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/challenges/list`).catch(console.error);
   }, []);
 
-  // Level Progression State
+  
   const [currentLevel, setCurrentLevel] = useState(1);
   const [questionsAnsweredInLevel, setQuestionsAnsweredInLevel] = useState(0);
   const [levelCompleted, setLevelCompleted] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   
-  // Question State
+  
   const [currentQ, setCurrentQ] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [sessionScore, setSessionScore] = useState(0);
@@ -98,7 +98,7 @@ const Challenges = () => {
     <div style={{ minHeight:'100%', background: c.bgPage, padding:'28px 32px', fontFamily:'inherit', transition:'background 0.25s' }}>
       <div style={{ maxWidth:1100, margin:'0 auto' }}>
 
-        {/* Header */}
+        {}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:28, flexWrap:'wrap', gap:16 }}>
           <div>
             <div style={{ display:'flex', alignItems:'center', gap:6, color: c.cyan, marginBottom:6 }}>
@@ -139,7 +139,7 @@ const Challenges = () => {
           )}
         </div>
 
-        {/* Help Modal */}
+        {}
         {showHelp && (
           <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:60, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(4px)' }}>
             <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:20, padding:'32px', maxWidth:500, width:'100%', position:'relative', boxShadow:'0 10px 40px rgba(0,0,0,0.2)' }}>
@@ -165,7 +165,7 @@ const Challenges = () => {
           </div>
         )}
 
-        {/* Challenge card grid */}
+        {}
         {!activeChallenge && (
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:20 }}>
             {TYPES.map(type => {
@@ -191,12 +191,12 @@ const Challenges = () => {
           </div>
         )}
 
-        {/* Active challenge */}
+        {}
         {activeChallenge && (
           <div style={{ ...cardStyle, position: 'relative', overflow: 'hidden' }}>
             
             {levelCompleted ? (
-              /* --- LEVEL COMPLETE SCREEN --- */
+              
               <div style={{ padding: '64px 32px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
                   <Lottie animationData={confettiAnim} loop={false} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -223,9 +223,9 @@ const Challenges = () => {
                 </div>
               </div>
             ) : (
-              /* --- QUESTION SCREEN --- */
+              
               <>
-                {/* Progress bar */}
+                {}
                 <div style={{ height:3, background: c.bgElevated }}>
                   <div style={{ height:'100%', width:`${((questionsAnsweredInLevel) / QUESTIONS_PER_LEVEL) * 100}%`, background:`linear-gradient(90deg,${CHALLENGE_META[activeChallenge].color},${c.indigo})`, transition:'width 0.5s' }} />
                 </div>
@@ -250,7 +250,7 @@ const Challenges = () => {
                     </div>
                   ) : currentQ ? (
                     <>
-                      {/* Question */}
+                      {}
                       <div style={{ background: c.bgElevated, border:`1px solid ${c.border}`, borderRadius:18, padding:'20px 24px', marginBottom:24 }}>
                         {activeChallenge === 'Code Auditor' ? (
                           <pre style={{ fontFamily:'monospace', fontSize:13, color: c.textPrimary, whiteSpace:'pre-wrap', wordBreak:'break-word', lineHeight:1.65, margin:0 }}>{currentQ.question}</pre>
@@ -259,7 +259,7 @@ const Challenges = () => {
                         )}
                       </div>
 
-                      {/* Options */}
+                      {}
                       <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:20 }}>
                         {(currentQ.options || []).map((opt, i) => {
                           const isSelected = selectedIdx === i;
@@ -276,7 +276,7 @@ const Challenges = () => {
                         })}
                       </div>
 
-                      {/* Feedback */}
+                      {}
                       {feedback && (
                         <div style={{ background: feedback.correct ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border:`1px solid ${feedback.correct?'rgba(16,185,129,0.35)':'rgba(239,68,68,0.35)'}`, borderRadius:16, padding:'16px 20px', marginBottom:20, display:'flex', alignItems:'flex-start', gap:12 }}>
                           <div style={{ width: 100, height: 100, flexShrink: 0 }}>
@@ -291,7 +291,7 @@ const Challenges = () => {
                         </div>
                       )}
 
-                      {/* Next button (Question OR Level) */}
+                      {}
                       {answered && (
                         <button onClick={nextQuestionOrLevel}
                           style={{ padding:'12px 28px', borderRadius:14, border:'none', background:`linear-gradient(135deg,${c.indigo},${c.cyan})`, color:'white', fontWeight:900, fontSize:13, cursor:'pointer', display:'flex', alignItems:'center', gap:8, boxShadow:'0 0 20px rgba(99,102,241,0.3)' }}>

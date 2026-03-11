@@ -87,7 +87,7 @@ const Dashboard = () => {
     <div style={{ minHeight: '100vh', background: c.bgPage, color: c.textPrimary, padding: '40px', fontFamily: 'inherit', transition: 'background 0.25s, color 0.25s' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
 
-        {/* Error Banner */}
+        {}
         {error && (
           <div style={{ marginBottom: 32, display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: '14px 20px', borderRadius: 16 }}>
             <AlertTriangle size={18} style={{ flexShrink: 0 }} />
@@ -95,7 +95,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Header */}
+        {}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 48, flexWrap: 'wrap', gap: 20 }}>
           <div>
             <div style={{ display:'flex', alignItems:'center', gap:8, color: c.cyan, marginBottom: 8 }}>
@@ -106,7 +106,7 @@ const Dashboard = () => {
             <p style={{ color: c.textSecondary, fontWeight: 600, margin: 0 }}>Monitor your security instincts and rank up.</p>
           </div>
 
-          {/* XP badge */}
+          {}
           <div style={{ background: c.bgCard, border: `1px solid rgba(234,179,8,0.25)`, padding: '18px 28px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 16, boxShadow: c.isDark ? '0 0 20px rgba(234,179,8,0.08)' : '0 2px 12px rgba(0,0,0,0.08)' }}>
             <Trophy color="#f59e0b" size={28} />
             <div>
@@ -116,7 +116,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Stat Cards */}
+        {}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 24, marginBottom: 40 }}>
           {STAT_CARDS.map((card, i) => (
             <div key={i} style={{ background: c.bgCard, border: `1px solid ${card.accent}25`, padding: '28px 28px 24px', borderRadius: 24, position: 'relative', overflow: 'hidden', transition: 'background 0.2s, box-shadow 0.2s', boxShadow: c.isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)' }}>
@@ -128,10 +128,10 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Charts + Leaderboard */}
+        {}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 28 }}>
 
-          {/* Chart Card */}
+          {}
           <div style={{ background: c.bgCard, border: `1px solid ${c.border}`, padding: 32, borderRadius: 28, boxShadow: c.isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32 }}>
               <Activity size={18} color={c.indigo} />
@@ -142,7 +142,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Leaderboard */}
+          {}
           <div style={{ background: c.bgCard, border: `1px solid ${c.border}`, borderRadius: 28, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: c.isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)' }}>
             <div style={{ padding: '24px 28px', borderBottom: `1px solid ${c.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
               <Trophy size={18} color="#f59e0b" />

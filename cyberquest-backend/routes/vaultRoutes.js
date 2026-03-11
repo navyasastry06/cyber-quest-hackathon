@@ -5,25 +5,25 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// ✅ In-memory cache: { email -> { result, cachedAt } }
-const scanCache = new Map();
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-// Simple email format check
+const scanCache = new Map();
+const CACHE_TTL_MS = 5 * 60 * 1000; 
+
+
 const isValidEmail = (str) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
 
 router.post('/scan', async (req, res) => {
     try {
         const { senderEmail } = req.body;
 
-        // ✅ Input validation
+        
         if (!senderEmail || typeof senderEmail !== 'string' || !isValidEmail(senderEmail)) {
             return res.status(400).json({ error: 'A valid senderEmail is required.' });
         }
 
         const emailKey = senderEmail.toLowerCase().trim();
 
-        // ✅ Check cache first
+        
         const cached = scanCache.get(emailKey);
         if (cached && (Date.now() - cached.cachedAt) < CACHE_TTL_MS) {
             console.log(`[VaultID] Cache hit for: ${emailKey}`);
@@ -32,7 +32,7 @@ router.post('/scan', async (req, res) => {
 
         console.log(`[VaultID] Scanning incoming target: ${emailKey}`);
         
-        // ✅ 1. DNS Entity Check (Does the domain actually exist via MX, A, or TXT records?)
+        
         const domain = emailKey.split('@')[1];
         try {
             await Promise.any([
@@ -83,7 +83,7 @@ router.post('/scan', async (req, res) => {
         const aiResponse = result.response.text();
         const parsedData = JSON.parse(aiResponse);
 
-        // ✅ Store in cache
+        
         scanCache.set(emailKey, { result: parsedData, cachedAt: Date.now() });
 
         console.log('[VaultID] AI Analysis Complete:', parsedData);

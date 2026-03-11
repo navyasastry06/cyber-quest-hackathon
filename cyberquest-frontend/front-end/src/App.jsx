@@ -39,7 +39,7 @@ const getValidUser = () => {
   }
 };
 
-// ── Toggle switch (defined outside — stable reference) ───────────────
+
 const ThemeToggle = () => {
   const { isDark, toggle } = useTheme();
   return (
@@ -51,11 +51,11 @@ const ThemeToggle = () => {
   );
 };
 
-// ── Header bar (reads theme for colors) ─────────────────────────────
+
 const HeaderBar = ({ user, onLogout }) => {
   const c = useColors();
   
-  // Custom Google Translate Dropdown logic
+  
   const [currentLang, setCurrentLang] = useState('en');
 
   useEffect(() => {
@@ -123,8 +123,8 @@ const HeaderBar = ({ user, onLogout }) => {
   );
 };
 
-// ── Protected layout (defined OUTSIDE AppInner — stable component reference) ──
-// Receives user + onLogout as props so it doesn't need the AppInner closure.
+
+
 const ProtectedLayout = ({ children, user, onLogout }) => {
   if (!user) return <Navigate to="/auth" />;
   return (
@@ -144,7 +144,7 @@ const ProtectedLayout = ({ children, user, onLogout }) => {
   );
 };
 
-// ── Inner app (has access to ThemeContext) ───────────────────────────
+
 function AppInner() {
   const [user, setUser] = useState(() => getValidUser());
 
@@ -154,7 +154,7 @@ function AppInner() {
     setUser(null);
   };
 
-  // Helper to wrap a page in ProtectedLayout with stable props
+  
   const wrap = (page) => (
     <ProtectedLayout user={user} onLogout={handleLogout}>
       {page}

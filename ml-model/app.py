@@ -9,9 +9,9 @@ import google.generativeai as genai
 app = Flask(__name__)
 CORS(app)
 
-# ==========================
-# Gemini Configuration
-# ==========================
+
+
+
 
 API_KEY = os.getenv("GOOGLE_API_KEY")
 
@@ -22,9 +22,9 @@ else:
     gemini_model = None
 
 
-# ==========================
-# Load ML Model
-# ==========================
+
+
+
 
 model = joblib.load("intrusion_model.pkl")
 
@@ -42,9 +42,9 @@ columns = [
 ]
 
 
-# ==========================
-# Gemini Explanation
-# ==========================
+
+
+
 
 def explain_attack(attack, traffic):
 
@@ -74,9 +74,9 @@ Explain in one short sentence.
         return fallback_explanation(attack)
 
 
-# ==========================
-# Fallback Explanation
-# ==========================
+
+
+
 
 def fallback_explanation(attack):
 
@@ -102,9 +102,9 @@ def fallback_explanation(attack):
     return explanations.get(attack, "No explanation available.")
 
 
-# ==========================
-# Generate Balanced Traffic
-# ==========================
+
+
+
 
 def generate_traffic():
 
@@ -162,7 +162,7 @@ def generate_traffic():
             "srv_serror_rate": round(random.uniform(0.2,0.5),2)
         }
 
-    else:  # Normal
+    else:
 
         traffic = {
             "duration": random.randint(1,10),
@@ -178,9 +178,9 @@ def generate_traffic():
     return traffic
 
 
-# ==========================
-# Simulation Endpoint
-# ==========================
+
+
+
 
 @app.route("/simulate", methods=["GET"])
 def simulate():

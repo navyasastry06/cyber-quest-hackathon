@@ -1,7 +1,7 @@
-// ✅ Single place to change the backend URL when deploying
+
 const BACKEND_URL = 'http://localhost:5000';
 
-// Replace with the AppID you got from the InboxSDK website
+
 const MY_APP_ID = 'sdk_VaultID_82e916ce03';
 
 InboxSDK.load(2, MY_APP_ID).then(function(sdk) {
@@ -13,17 +13,17 @@ InboxSDK.load(2, MY_APP_ID).then(function(sdk) {
 
     const threadView = messageView.getThreadView();
 
-    // 1. Create the container FIRST
+    
     const uiContainer = createSidebarUI(emailAddress);
 
-    // 2. Inject it into Gmail
+    
     threadView.addSidebarContentPanel({
       title: 'VaultID Identity Report',
       iconUrl: 'https://cdn-icons-png.flaticon.com/512/2092/2092663.png',
       el: uiContainer
     });
 
-    // 3. ✅ Pass sdk explicitly — no outer-scope closure dependency
+    
     scanEmail(emailAddress, uiContainer, sdk);
   });
 });
@@ -41,7 +41,7 @@ function createSidebarUI(email) {
   return div;
 }
 
-// ✅ sdk is passed as a parameter — self-contained, no closure risk
+
 async function scanEmail(email, container, sdk) {
     console.log(`[VaultID Frontend] Sending ${email} to backend...`);
     try {
@@ -57,7 +57,7 @@ async function scanEmail(email, container, sdk) {
         const color = isSafe ? '#22c55e' : '#ef4444';
         const statusText = isSafe ? '🟢 VERIFIED' : '🚨 HIGH RISK';
 
-        // Only show the Report button if it's NOT safe
+        
         const actionButtonHTML = isSafe
             ? `<p style="text-align: center; margin-top: 15px; color: #22c55e; font-size: 13px; font-weight: bold;">🛡️ Threat Level Zero. No action required.</p>`
             : `<button id="report-btn" style="width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px;">
@@ -76,11 +76,11 @@ async function scanEmail(email, container, sdk) {
             </div>
         `;
 
-        // Only attach the click listener if the button actually exists
+        
         if (!isSafe) {
             const reportBtn = container.querySelector('#report-btn');
 
-            // ✅ sdk is a direct parameter here — no stale closure risk
+            
             reportBtn.addEventListener('click', async () => {
                 reportBtn.innerText = '⏳ Syncing to Global Registry...';
                 reportBtn.style.background = '#f59e0b';
@@ -121,7 +121,7 @@ async function scanEmail(email, container, sdk) {
         }
 
     } catch (error) {
-        // ✅ Improved offline fallback with actionable message
+        
         console.error('[VaultID Frontend] Connection Error:', error);
         container.innerHTML = `
             <div style="padding: 15px; background-color: #0f172a; border: 1px solid #f59e0b; border-radius: 8px; font-family: sans-serif;">

@@ -83,7 +83,7 @@ columns = [
 ]
 
 df = pd.DataFrame(data, columns=columns)
-df = df.sample(frac=1).reset_index(drop=True)  # shuffle rows
+df = df.sample(frac=1).reset_index(drop=True)
 
 df.to_csv("intrusion_250.csv", index=False)
 

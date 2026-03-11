@@ -66,7 +66,7 @@ const Simulator = () => {
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', background: c.bgPage, padding:'20px 24px', fontFamily:'inherit', transition:'background 0.25s', position:'relative', overflow:'hidden' }}>
 
-      {/* Feedback overlay */}
+      {}
       {feedback && (
         <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:50, background: feedback.type==='success' ? 'rgba(5,40,20,0.92)' : 'rgba(40,5,5,0.92)', backdropFilter:'blur(6px)' }}>
           <div style={{ textAlign:'center', color:'white', padding:'40px 48px', maxWidth:500 }}>
@@ -85,7 +85,7 @@ const Simulator = () => {
         </div>
       )}
 
-      {/* Header */}
+      {}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16, background: c.bgCard, border:`1px solid ${c.border}`, padding:'14px 20px', borderRadius:18 }}>
         <div>
           <div style={{ display:'flex', alignItems:'center', gap:6, color: c.cyan, marginBottom:4 }}>
@@ -108,7 +108,7 @@ const Simulator = () => {
         </div>
       </div>
 
-      {/* Help Modal */}
+      {}
       {showHelp && (
         <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:60, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(4px)' }}>
           <div style={{ background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:20, padding:'32px', maxWidth:500, width:'100%', position:'relative', boxShadow:'0 10px 40px rgba(0,0,0,0.2)' }}>
@@ -135,10 +135,10 @@ const Simulator = () => {
         </div>
       )}
 
-      {/* Main split */}
+      {}
       <div style={{ flex:1, display:'flex', gap:16, overflow:'hidden', minHeight:0 }}>
 
-        {/* Inbox */}
+        {}
         <div style={{ width:260, background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:18, overflow:'hidden', display:'flex', flexDirection:'column', flexShrink:0 }}>
           <div style={{ padding:'12px 16px', borderBottom:`1px solid ${c.border}`, background: c.bgElevated, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
             <select
@@ -170,7 +170,7 @@ const Simulator = () => {
           </div>
         </div>
 
-        {/* Email viewer */}
+        {}
         <div style={{ flex:1, background: c.bgCard, border:`1px solid ${c.border}`, borderRadius:18, display:'flex', flexDirection:'column', overflow:'hidden', minWidth:0 }}>
           <div style={{ padding:'20px 24px', borderBottom:`1px solid ${c.border}`, background: c.bgElevated }}>
             <h2 style={{ fontSize:18, fontWeight:900, color: c.textPrimary, margin:'0 0 12px', lineHeight:1.3 }}>{selectedEmail.subject}</h2>

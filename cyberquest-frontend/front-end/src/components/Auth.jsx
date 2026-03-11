@@ -6,7 +6,7 @@ import { useColors } from '../context/useColors';
 import { useTheme } from '../context/ThemeContext';
 import authAnimation from '../assets/auth-animation.json';
 
-// Theme toggle reusing the index.css component
+
 const AuthThemeToggle = () => {
   const { isDark, toggle } = useTheme();
   return (
@@ -18,8 +18,8 @@ const AuthThemeToggle = () => {
   );
 };
 
-// Field defined OUTSIDE Auth so it has a stable reference across renders.
-// Receives c, formData, handleChange as props instead of via closure.
+
+
 const Field = ({ label, icon, type, name, placeholder, inputStyle, c, value, onChange, children }) => {
   const IconCmp = icon;
   return (
@@ -39,7 +39,7 @@ const Field = ({ label, icon, type, name, placeholder, inputStyle, c, value, onC
 
 const Auth = ({ onLoginSuccess }) => {
   const c = useColors();
-  const [authMode, setAuthMode] = useState('login'); // 'login', 'register', or 'forgot'
+  const [authMode, setAuthMode] = useState('login'); 
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -103,11 +103,11 @@ const Auth = ({ onLoginSuccess }) => {
   return (
     <div style={{ minHeight: '100vh', width: '100%', display: 'flex', background: c.bgPage, fontFamily: 'inherit', transition: 'background 0.25s' }}>
 
-      {/* LEFT — Brand panel (hidden on small screens) */}
+      {}
       <div className="hidden lg:flex" style={{ width: '50%', background: c.isDark ? '#070b14' : '#f0f4ff', borderRight: `1px solid ${c.border}`, flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px', position: 'relative', overflow: 'hidden' }}>
-        {/* Glow */}
+        {}
         <div style={{ position:'absolute', inset:0, background: c.isDark ? 'radial-gradient(ellipse at 50% 50%,rgba(99,102,241,0.12) 0%,transparent 70%)' : 'radial-gradient(ellipse at 50% 50%,rgba(99,102,241,0.08) 0%,transparent 70%)', pointerEvents:'none' }} />
-        {/* Grid */}
+        {}
         <div style={{ position:'absolute', inset:0, pointerEvents:'none', backgroundImage:`linear-gradient(${c.border} 1px,transparent 1px),linear-gradient(90deg,${c.border} 1px,transparent 1px)`, backgroundSize:'60px 60px' }} />
 
         <div style={{ position:'relative', zIndex:1, width:'100%', maxWidth:400, textAlign:'center' }}>
@@ -126,17 +126,17 @@ const Auth = ({ onLoginSuccess }) => {
         </div>
       </div>
 
-      {/* RIGHT — Form */}
+      {}
       <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'32px 24px', background: c.bgCard, position:'relative' }}>
 
-        {/* Theme toggle — top right corner */}
+        {}
         <div style={{ position:'absolute', top:20, right:24 }}>
           <AuthThemeToggle />
         </div>
 
         <div style={{ width:'100%', maxWidth:420 }}>
 
-          {/* Mobile logo (only shows on small screens) */}
+          {}
           <div style={{ textAlign:'center', marginBottom:32 }} className="lg:hidden">
             <div style={{ width:60, height:60, borderRadius:16, background:'linear-gradient(135deg,#4f46e5,#06b6d4)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 12px', boxShadow:'0 0 20px rgba(79,70,229,0.3)' }}>
               <Shield size={28} color="white" />

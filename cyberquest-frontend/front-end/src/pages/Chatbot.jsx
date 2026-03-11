@@ -33,7 +33,7 @@ const ChatPage = () => {
       if (response.ok) {
         setMessages(prev => [...prev, { text: data.reply, isBot: true }]);
       } else {
-        // Render the true JSON error from the backend instead of a generic network drop
+        
         setMessages(prev => [...prev, { text: `⚠️ ${data.error || "System busy. Please try again."}`, isBot: true }]);
       }
     } catch (err) {
@@ -47,7 +47,7 @@ const ChatPage = () => {
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', background: c.bgPage, padding:'24px 32px', minWidth:0, fontFamily:'inherit', transition:'background 0.25s' }}>
 
-      {/* Header */}
+      {}
       <div style={{ marginBottom:20, display:'flex', alignItems:'center', gap:16, paddingBottom:16, borderBottom:`1px solid ${c.border}` }}>
         <div style={{ width:48, height:48, background:`${c.cyan}15`, border:`1px solid ${c.cyan}50`, borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center', color: c.cyan, flexShrink:0 }}>
           <ShieldAlert size={24} />
@@ -61,19 +61,19 @@ const ChatPage = () => {
         </div>
       </div>
 
-      {/* Chat window */}
+      {}
       <div style={{ flex:1, background: c.bgCard, borderRadius:24, border:`1px solid ${c.border}`, display:'flex', flexDirection:'column', overflow:'hidden', minHeight:0, boxShadow: c.isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)' }}>
 
-        {/* Messages */}
+        {}
         <div style={{ flex:1, padding:'24px', overflowY:'auto', display:'flex', flexDirection:'column', gap:20 }}>
           {messages.map((msg, i) => (
             <div key={i} style={{ display:'flex', justifyContent: msg.isBot ? 'flex-start' : 'flex-end' }}>
               <div style={{ display:'flex', gap:12, maxWidth:'80%', flexDirection: msg.isBot ? 'row' : 'row-reverse' }}>
-                {/* Avatar */}
+                {}
                 <div style={{ width:36, height:36, borderRadius:10, flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', border:`1px solid ${msg.isBot ? c.cyan+'50' : c.border}`, background: msg.isBot ? `${c.cyan}12` : c.bgElevated, color: msg.isBot ? c.cyan : c.textSecondary }}>
                   {msg.isBot ? <Bot size={18} /> : <User size={18} />}
                 </div>
-                {/* Bubble */}
+                {}
                 <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
                   <span style={{ fontSize:9, fontFamily:'monospace', fontWeight:900, letterSpacing:'0.2em', textTransform:'uppercase', opacity:0.5, color: msg.isBot ? c.cyan : c.textSecondary, textAlign: msg.isBot ? 'left' : 'right', paddingInline:4 }}>
                     {msg.isBot ? 'SYS_RESPONSE' : 'OPERATIVE_INPUT'}
@@ -100,7 +100,7 @@ const ChatPage = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
+        {}
         <div style={{ padding:'16px 20px', borderTop:`1px solid ${c.border}`, background: c.bgElevated, flexShrink:0 }}>
           <form onSubmit={sendMessage} style={{ display:'flex', gap:10, maxWidth:900, margin:'0 auto' }}>
             <input type="text" value={input} onChange={e => setInput(e.target.value)}

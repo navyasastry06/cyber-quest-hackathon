@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useColors } from '../context/useColors';
 import API_BASE_URL from '../config';
 import { playCorrectSound, playWrongSound, playTimeUpSound } from '../utils/soundEffects';
-import { Shield, UserX, UserCheck, Activity, EyeOff } from 'lucide-react';
+import { Shield, UserX, UserCheck, Activity, EyeOff, HelpCircle, X } from 'lucide-react';
 
 const EVENT_TYPES = [
   { type: 'SUCCESS', desc: 'Successful login from New York (IP: 192.168.1.5)', risk: 'Low' },
@@ -23,16 +23,17 @@ const IdentityTimeline = () => {
   const [showShake, setShowShake] = useState(false);
   const [hasFinished, setHasFinished] = useState(false);
   const [scoreSaved, setScoreSaved] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const scrollRef = useRef(null);
 
-  // Auto-scroll to bottom of logs
+  
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [events]);
 
-  // Main game loop - Timer
+  
   useEffect(() => {
     let timer;
     if (isPlaying && timeLeft > 0) {
@@ -50,7 +51,7 @@ const IdentityTimeline = () => {
     return () => clearInterval(timer);
   }, [isPlaying, timeLeft]);
 
-  // Save score to backend when game finishes
+  
   useEffect(() => {
     if (!isPlaying && timeLeft === 0 && score > 0 && !scoreSaved) {
       setTimeout(() => setScoreSaved(true), 0);
@@ -83,7 +84,7 @@ const IdentityTimeline = () => {
     }
   }, [isPlaying, timeLeft, score, scoreSaved]);
 
-  // Main game loop - generate logs
+  
   useEffect(() => {
     let spawner;
     let isActive = true;
@@ -91,7 +92,7 @@ const IdentityTimeline = () => {
     const spawnLog = () => {
       if (!isActive || !isPlaying) return;
 
-      // 15% chance of anomaly
+      
       const isAnomaly = Math.random() > 0.85;
       let eventConfig;
       
@@ -110,7 +111,7 @@ const IdentityTimeline = () => {
           handled: false
       };
 
-      setEvents(prev => [...prev.slice(-20), newEvent]); // Keep last 20
+      setEvents(prev => [...prev.slice(-20), newEvent]); 
       
       spawner = setTimeout(spawnLog, 1500 + Math.random() * 1000);
     };
@@ -138,9 +139,9 @@ const IdentityTimeline = () => {
   const handleLockAccount = () => {
     if (!isPlaying) return;
 
-    // Check the last 3 events for an unhandled anomaly
     
-    // findLastIndex isn't supported in all browsers, so we reverse search manually
+    
+    
     let anomalyIndex = -1;
     for (let i = events.length - 1; i >= Math.max(0, events.length - 3); i--) {
         if (events[i].type === 'ANOMALY' && !events[i].handled) {
@@ -150,22 +151,22 @@ const IdentityTimeline = () => {
     }
 
     if (anomalyIndex !== -1) {
-        // Correctly intercepted an anomaly
+        
         playCorrectSound();
         setScore(s => s + 20);
         
-        // Mark as handled
+        
         setEvents(prev => {
            const next = [...prev];
            next[anomalyIndex] = { ...next[anomalyIndex], handled: true, locked: true };
            return next;
         });
     } else {
-        // Did it on normal behavior (False Positive)
+        
         playWrongSound();
         setScore(s => Math.max(0, s - 10));
         
-        // Add a penalty log
+        
         setEvents(prev => [...prev, {
             id: Date.now(),
             time: new Date().toLocaleTimeString(),
@@ -253,32 +254,63 @@ const IdentityTimeline = () => {
 
       <div style={{ padding: '24px 32px', maxWidth: 1000, margin: '0 auto', color: c.textPrimary, animation: showShake ? 'shake 0.5s ease-in-out' : 'none' }}>
         
-        <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div>
-            <h1 style={{ fontSize: 28, fontWeight: 900, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Activity color={c.indigo} size={32} />
-            Identity Timeline Analytics
-            </h1>
-            <p style={{ color: c.textSecondary, margin: 0, maxWidth: 600 }}>
-            Monitor the live Active Directory identity feed. If you spot Business Email Compromise (BEC) indicators like Impossible Travel, lock the account immediately!
-            </p>
-        </div>
-        
-        <div style={{ background: c.cardBg, border: `1px solid ${c.border}`, padding: '12px 24px', borderRadius: 12, display: 'flex', gap: 24 }}>
-            <div>
-                <p style={{ margin: 0, fontSize: 11, fontWeight: 900, color: c.textMuted, textTransform: 'uppercase' }}>Time</p>
-                <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: c.textPrimary }}>{timeLeft}s</p>
+        <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+              <h1 style={{ fontSize: 28, fontWeight: 900, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Activity color={c.indigo} size={32} />
+              Identity Timeline Analytics
+              </h1>
+              <p style={{ color: c.textSecondary, margin: 0, maxWidth: 600 }}>
+              Monitor the live Active Directory identity feed. If you spot Business Email Compromise (BEC) indicators like Impossible Travel, lock the account immediately!
+              </p>
+          </div>
+          
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+            <button onClick={() => setShowHelp(true)} style={{ background: c.cardBg, border:`1px solid ${c.border}`, borderRadius:14, padding:'10px', display:'flex', alignItems:'center', justifyContent:'center', color: c.textSecondary, cursor:'pointer', transition:'all 0.2s', height: 48, width: 48 }} onMouseEnter={e => e.currentTarget.style.color = c.cyan} onMouseLeave={e => e.currentTarget.style.color = c.textSecondary}>
+              <HelpCircle size={22} />
+            </button>
+            <div style={{ background: c.cardBg, border: `1px solid ${c.border}`, padding: '0 24px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 24, height: 48 }}>
+                <div>
+                    <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: c.textMuted, textTransform: 'uppercase', lineHeight: 1 }}>Time</p>
+                    <p style={{ margin: 0, fontSize: 20, fontWeight: 900, color: c.textPrimary, lineHeight: 1 }}>{timeLeft}s</p>
+                </div>
+                <div>
+                    <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: c.textMuted, textTransform: 'uppercase', lineHeight: 1 }}>Score</p>
+                    <p style={{ margin: 0, fontSize: 20, fontWeight: 900, color: c.indigo, lineHeight: 1 }}>{score}</p>
+                </div>
             </div>
-            <div>
-                <p style={{ margin: 0, fontSize: 11, fontWeight: 900, color: c.textMuted, textTransform: 'uppercase' }}>Score</p>
-                <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: c.indigo }}>{score}</p>
-            </div>
+          </div>
         </div>
-      </div>
+
+      {}
+      {showHelp && (
+        <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:60, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(4px)' }}>
+          <div style={{ background: c.cardBg, border:`1px solid ${c.border}`, borderRadius:20, padding:'32px', maxWidth:500, width:'100%', position:'relative', boxShadow:'0 10px 40px rgba(0,0,0,0.2)' }}>
+            <button onClick={() => setShowHelp(false)} style={{ position:'absolute', top:20, right:20, background:'transparent', border:'none', color: c.textSecondary, cursor:'pointer' }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ fontSize:24, fontWeight:900, color: c.textPrimary, marginBottom:16, display:'flex', alignItems:'center', gap:10 }}>
+              <HelpCircle color={c.cyan} size={28} /> How to Play
+            </h2>
+            <div style={{ color: c.textSecondary, fontSize:15, lineHeight:1.7, display:'flex', flexDirection:'column', gap:12 }}>
+              <p>Welcome to <strong>Identity Timeline Analytics</strong>! Your objective is to act as an Incident Responder and monitor live Active Directory logs.</p>
+              <ul style={{ paddingLeft:20, margin:0, display:'flex', flexDirection:'column', gap:8 }}>
+                <li>Watch the activity feed scroll by on the left.</li>
+                <li>Most logins will be <span style={{color: '#10b981', fontWeight:700}}>SUCCESS</span> or normal <span style={{color: '#f59e0b', fontWeight:700}}>FAILED</span> attempts.</li>
+                <li>If you spot an <span style={{color: '#ef4444', fontWeight:900}}>ANOMALY</span> (like Impossible Travel or 50 failed logins followed by a success), you must hit the big red <strong>LOCK ACCOUNT</strong> button immediately!</li>
+                <li>Locking an anomaly earns XP. Locking a normal login will dock you points for a false positive!</li>
+              </ul>
+            </div>
+            <button onClick={() => setShowHelp(false)} style={{ width:'100%', marginTop:24, padding:'12px', background: c.indigo, color:'white', borderRadius:12, border:'none', fontWeight:900, cursor:'pointer' }}>
+              Understood!
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 24, height: 500 }}>
         
-        {/* Left: The Timeline Feed */}
+        {}
         <div 
             ref={scrollRef}
             style={{ 

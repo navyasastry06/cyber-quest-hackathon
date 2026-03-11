@@ -5,7 +5,7 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('cq_theme');
-    return saved ? saved === 'dark' : true; // default: dark
+    return saved ? saved === 'dark' : true; 
   });
 
   useEffect(() => {
@@ -27,5 +27,5 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
+
 export const useTheme = () => useContext(ThemeContext);

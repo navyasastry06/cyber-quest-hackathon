@@ -5,13 +5,13 @@ const rateLimit = require('express-rate-limit');
 const pool = require('./config/db');
 const app = express();
 
-// Middleware
+
 app.use(express.json());
 
-// ✅ Generic CORS config to allow frontend fetching from Vercel
+
 app.use(cors());
 
-// ✅ Global rate limiter — 100 requests per 15 minutes per IP
+
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -21,7 +21,7 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
-// ✅ Tight rate limiter for AI scan endpoint — 15 requests per 15 minutes
+
 const scanLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 15,
@@ -30,19 +30,19 @@ const scanLimiter = rateLimit({
     message: { error: 'Scan limit reached. Please wait before scanning again.' }
 });
 
-// Route Imports
+
 const chatRoutes = require('./routes/chatRoutes');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const vaultidRoutes = require('./routes/vaultRoutes');
 const challengeRoutes = require('./routes/challengeRoutes');
 
-// Route Registrations
+
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/challenges', challengeRoutes);
-app.use('/api/vaultid', scanLimiter, vaultidRoutes); // AI route gets its own tight limiter
+app.use('/api/vaultid', scanLimiter, vaultidRoutes); 
 
 app.get('/api/health', (req, res) => {
     res.json({ message: "CyberQuest Backend is running smoothly!" });

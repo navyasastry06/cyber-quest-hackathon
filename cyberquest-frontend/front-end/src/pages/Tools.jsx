@@ -66,7 +66,7 @@ const Tools = () => {
     <div style={{ minHeight: '100%', background: c.bgPage, padding: '32px 36px', color: c.textPrimary, fontFamily: 'inherit', transition: 'background 0.25s' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
 
-        {/* Header */}
+        {}
         <div style={{ marginBottom: 36, borderBottom: `1px solid ${c.border}`, paddingBottom: 24 }}>
           <p style={{ color: c.cyan, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.25em', marginBottom: 6, display:'flex', gap:6, alignItems:'center' }}>
             <Search size={13} /> Field Equipment
@@ -76,7 +76,7 @@ const Tools = () => {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
 
-          {/* IP Tracer */}
+          {}
           <div style={cardStyle}>
             <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 24 }}>
               <div style={iconAccent('#6366f1')}><Globe size={22} color="#6366f1" /></div>
@@ -103,7 +103,7 @@ const Tools = () => {
             </div>
           </div>
 
-          {/* Password Strength */}
+          {}
           <div style={cardStyle}>
             <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 24 }}>
               <div style={iconAccent('#f59e0b')}><Key size={22} color="#f59e0b" /></div>
@@ -127,7 +127,7 @@ const Tools = () => {
           </div>
         </div>
 
-        {/* Crypto Forge */}
+        {}
         <div style={{ ...cardStyle, padding: 32 }}>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 28 }}>
             <div style={iconAccent('#6366f1')}><Hash size={22} color="#6366f1" /></div>
@@ -157,7 +157,7 @@ const Tools = () => {
 
             <div style={{ background: c.bgElevated, border: `1px solid ${c.border}`, borderRadius: 16, padding: 18, display: 'flex', flexDirection: 'column', position: 'relative', minHeight: 200 }}>
               <p style={{ fontSize: 9, fontWeight: 900, color: c.textMuted, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${c.border}`, margin: '0 0 12px' }}>
-                Output // {hashMode}
+                Output 
               </p>
               <p style={{ fontFamily: 'monospace', fontSize: 13, color: '#10b981', wordBreak: 'break-all', lineHeight: 1.6, flex: 1 }}>
                 {hashResult || <span style={{ color: c.textMuted }}>_WAITING_FOR_SEQUENCE_...</span>}

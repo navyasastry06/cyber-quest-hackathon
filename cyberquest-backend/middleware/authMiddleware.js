@@ -1,13 +1,9 @@
 const jwt = require('jsonwebtoken');
 
-/**
- * verifyToken middleware
- * Reads the Authorization: Bearer <token> header, verifies it,
- * and attaches req.user = { id } for downstream route handlers.
- */
+
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // "Bearer <token>"
+    const token = authHeader && authHeader.split(' ')[1]; 
 
     if (!token) {
         return res.status(401).json({ error: 'Access denied. No token provided.' });
@@ -15,7 +11,7 @@ const verifyToken = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // { id, iat, exp }
+        req.user = decoded; 
         next();
     } catch (err) {
         if (err.name === 'TokenExpiredError') {
