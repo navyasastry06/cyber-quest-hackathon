@@ -2,7 +2,7 @@
 
 Welcome to CyberQuest! This project is an interactive, gamified cybersecurity platform designed to teach users about cybersecurity concepts through various challenges, simulations, and real-time AI tools. 
 
-## 🚀 Features
+## Features
 
 The platform consists of several distinct game modes and tools:
 
@@ -41,7 +41,7 @@ The platform consists of several distinct game modes and tools:
 
 ---
 
-## 🏗️ Architecture Stack
+##  Architecture Stack
 
 This project is a monorepo consisting of 4 main parts:
 
@@ -52,7 +52,7 @@ This project is a monorepo consisting of 4 main parts:
 
 ---
 
-## 💻 Running the Project Locally
+## Running the Project Locally
 
 To run the full stack locally, you will need to open **three separate terminal windows** and run the following commands in each.
 
@@ -94,7 +94,7 @@ python app.py
 
 ---
 
-## 🔑 Environment Variables (.env)
+## Environment Variables (.env)
 You will need to set up your `.env` files for the backends.
 
 **In `cyberquest-backend/.env`:**
